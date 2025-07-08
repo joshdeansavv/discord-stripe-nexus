@@ -65,7 +65,7 @@ const Analytics = () => {
             change: "Excellent"
           }
         ].map((stat, index) => (
-          <Card key={stat.title} className="bg-gray-800 border-gray-700 hover:bg-gray-750 transition-colors">
+          <Card key={stat.title} className="bg-gray-800 border-gray-700 hover:bg-gray-700 transition-colors">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
               <CardTitle className="text-sm font-medium text-gray-300">{stat.title}</CardTitle>
               <div className={`w-10 h-10 ${stat.color} rounded-lg flex items-center justify-center shadow-lg`}>
