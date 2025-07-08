@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +10,8 @@ import {
   Server, 
   Crown,
   Plus,
-  ExternalLink
+  ExternalLink,
+  Settings
 } from "lucide-react";
 
 const Dashboard = () => {
