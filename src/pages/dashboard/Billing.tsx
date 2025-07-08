@@ -14,47 +14,44 @@ const Billing = () => {
     return (
       <div className="flex items-center justify-center min-h-64">
         <div className="text-center">
-          <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl animate-pulse">
-            <CreditCard className="w-8 h-8 text-white" />
+          <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-3 animate-pulse">
+            <CreditCard className="w-6 h-6 text-primary" />
           </div>
-          <div className="text-white">Loading billing information...</div>
+          <div className="text-foreground">Loading billing...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 p-6">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold text-white">Billing & Subscription</h1>
-        <p className="text-gray-300">Manage your subscription and billing information</p>
+    <div className="space-y-6 p-6">
+      <div>
+        <h1 className="text-2xl font-bold text-foreground">Billing</h1>
+        <p className="text-muted-foreground">Manage your subscription and payments</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-gray-800 border border-gray-700 rounded-lg">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-card border border-border rounded-lg">
           <SubscriptionStatus />
         </div>
         
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle className="flex items-center text-white">
-              <Receipt className="w-5 h-5 mr-2 text-green-400" />
+            <CardTitle className="flex items-center gap-2 text-foreground">
+              <Receipt className="w-5 h-5 text-primary" />
               Billing History
             </CardTitle>
-            <CardDescription className="text-gray-400">
-              Your recent billing and payment history
+            <CardDescription>
+              Recent payments and invoices
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-center py-8">
-              <Receipt className="w-12 h-12 mx-auto mb-4 text-gray-600" />
-              <p className="text-white font-medium mb-2">No billing history</p>
-              <p className="text-sm text-gray-400 mb-4">Your billing history will appear here once you have an active subscription</p>
-              <Button 
-                variant="outline" 
-                className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
-              >
-                <ExternalLink className="w-4 h-4 mr-2" />
+            <div className="text-center py-6">
+              <Receipt className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
+              <p className="text-foreground font-medium mb-1">No billing history</p>
+              <p className="text-sm text-muted-foreground mb-3">History will appear after subscription</p>
+              <Button variant="outline" size="sm" className="gap-2">
+                <ExternalLink className="w-4 h-4" />
                 Manage Billing
               </Button>
             </div>
@@ -63,42 +60,39 @@ const Billing = () => {
       </div>
 
       {subscription && (
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle className="flex items-center text-white">
-              <Calendar className="w-5 h-5 mr-2 text-blue-400" />
+            <CardTitle className="flex items-center gap-2 text-foreground">
+              <Calendar className="w-5 h-5 text-primary" />
               Subscription Details
             </CardTitle>
-            <CardDescription className="text-gray-400">
-              Current subscription information
-            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="flex flex-col space-y-2">
-                <span className="text-sm text-gray-400">Status</span>
-                <div className="flex items-center space-x-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-1">
+                <span className="text-sm text-muted-foreground">Status</span>
+                <div>
                   {isActive ? (
-                    <Badge className="bg-green-600 text-white hover:bg-green-700">Active</Badge>
+                    <Badge className="bg-green-500/10 text-green-500 border-green-500/20">Active</Badge>
                   ) : (
-                    <Badge variant="secondary" className="bg-gray-600 text-gray-200">Inactive</Badge>
+                    <Badge variant="secondary">Inactive</Badge>
                   )}
                 </div>
               </div>
               
-              <div className="flex flex-col space-y-2">
-                <span className="text-sm text-gray-400">Plan</span>
-                <span className="text-white font-medium">
+              <div className="space-y-1">
+                <span className="text-sm text-muted-foreground">Plan</span>
+                <span className="text-foreground font-medium block">
                   {subscription.subscription_tier || 'Basic'}
                 </span>
               </div>
               
               {subscription.subscription_end && (
-                <div className="flex flex-col space-y-2">
-                  <span className="text-sm text-gray-400">
-                    {isActive ? 'Next billing date' : 'Expired on'}
+                <div className="space-y-1">
+                  <span className="text-sm text-muted-foreground">
+                    {isActive ? 'Next billing' : 'Expired'}
                   </span>
-                  <span className="text-white font-medium">
+                  <span className="text-foreground font-medium block">
                     {format(new Date(subscription.subscription_end), 'MMM dd, yyyy')}
                   </span>
                 </div>
@@ -108,23 +102,20 @@ const Billing = () => {
         </Card>
       )}
 
-      <Card className="bg-gray-800 border-gray-700">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="flex items-center text-white">
-            <CreditCard className="w-5 h-5 mr-2 text-purple-400" />
+          <CardTitle className="flex items-center gap-2 text-foreground">
+            <CreditCard className="w-5 h-5 text-primary" />
             Payment Methods
           </CardTitle>
-          <CardDescription className="text-gray-400">
-            Manage your payment methods and billing preferences
-          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8">
-            <CreditCard className="w-12 h-12 mx-auto mb-4 text-gray-600" />
-            <p className="text-white font-medium mb-2">No payment methods</p>
-            <p className="text-sm text-gray-400 mb-4">Add a payment method to start your subscription</p>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white border-0">
-              <CreditCard className="w-4 h-4 mr-2" />
+          <div className="text-center py-6">
+            <CreditCard className="w-10 h-10 mx-auto mb-3 text-muted-foreground/50" />
+            <p className="text-foreground font-medium mb-1">No payment methods</p>
+            <p className="text-sm text-muted-foreground mb-3">Add a payment method to subscribe</p>
+            <Button className="gap-2">
+              <CreditCard className="w-4 h-4" />
               Add Payment Method
             </Button>
           </div>

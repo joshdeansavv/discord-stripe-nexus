@@ -9,137 +9,119 @@ const Analytics = () => {
 
   const handleRefresh = () => {
     setIsRefreshing(true);
-    // Simulate refresh
     setTimeout(() => setIsRefreshing(false), 2000);
   };
 
   return (
-    <div className="space-y-8 p-6">
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+    <div className="space-y-6 p-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">Analytics</h1>
-          <p className="text-gray-300">Track your bot's performance and server activity</p>
+          <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
+          <p className="text-muted-foreground">Track your bot's performance and activity</p>
         </div>
         <Button 
           onClick={handleRefresh}
           disabled={isRefreshing}
-          className="bg-blue-600 hover:bg-blue-700 text-white border-0 shadow-lg transition-colors"
+          size="sm"
+          className="gap-2"
         >
-          <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-          {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
+          <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          {isRefreshing ? 'Refreshing...' : 'Refresh'}
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { 
-            title: "Total Commands", 
+            title: "Commands", 
             value: "0", 
             icon: Activity, 
-            color: "bg-blue-500",
-            description: "Commands executed",
-            change: "+0%"
+            color: "text-blue-500",
+            description: "Total executed"
           },
           { 
-            title: "Active Servers", 
+            title: "Servers", 
             value: "0", 
             icon: Users, 
-            color: "bg-green-500",
-            description: "Connected servers",
-            change: "+0%"
+            color: "text-green-500",
+            description: "Connected"
           },
           { 
-            title: "Messages Processed", 
+            title: "Messages", 
             value: "0", 
             icon: TrendingUp, 
-            color: "bg-orange-500",
-            description: "Messages handled",
-            change: "+0%"
+            color: "text-orange-500",
+            description: "Processed"
           },
           { 
             title: "Uptime", 
             value: "99.9%", 
             icon: BarChart3, 
-            color: "bg-purple-500",
-            description: "Last 30 days",
-            change: "Excellent"
+            color: "text-purple-500",
+            description: "Last 30 days"
           }
-        ].map((stat, index) => (
-          <Card key={stat.title} className="bg-gray-800 border-gray-700 hover:bg-gray-700 transition-colors">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium text-gray-300">{stat.title}</CardTitle>
-              <div className={`w-10 h-10 ${stat.color} rounded-lg flex items-center justify-center shadow-lg`}>
-                <stat.icon className="h-5 w-5 text-white" />
-              </div>
+        ].map((stat) => (
+          <Card key={stat.title} className="bg-card border-border hover:bg-muted/50 transition-colors">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
+              <stat.icon className={`w-4 h-4 ${stat.color}`} />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-white mb-1">{stat.value}</div>
-              <div className="flex items-center justify-between">
-                <p className="text-xs text-gray-400">{stat.description}</p>
-                <span className="text-xs text-green-400 font-medium">{stat.change}</span>
-              </div>
+              <div className="text-2xl font-bold text-foreground">{stat.value}</div>
+              <p className="text-xs text-muted-foreground">{stat.description}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card className="bg-gray-800 border-gray-700">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle className="flex items-center text-white">
-              <BarChart3 className="w-5 h-5 mr-2 text-blue-400" />
+            <CardTitle className="flex items-center gap-2 text-foreground">
+              <BarChart3 className="w-5 h-5 text-primary" />
               Usage Analytics
             </CardTitle>
-            <CardDescription className="text-gray-400">
-              Detailed analytics and performance metrics
+            <CardDescription>
+              Performance metrics and usage statistics
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-center py-12">
-              <BarChart3 className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-              <h3 className="text-xl font-semibold text-white mb-2">No analytics data</h3>
-              <p className="text-gray-400 max-w-md mx-auto mb-6">
-                Analytics data will appear here once your bot starts processing commands and messages in your Discord servers.
+            <div className="text-center py-8">
+              <BarChart3 className="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" />
+              <h3 className="font-medium text-foreground mb-1">No data available</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Start using your bot to see analytics here
               </p>
-              <Button 
-                onClick={handleRefresh}
-                variant="outline" 
-                className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
-              >
+              <Button variant="outline" size="sm" onClick={handleRefresh}>
                 Check for Data
               </Button>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-800 border-gray-700">
+        <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle className="flex items-center text-white">
-              <TrendingUp className="w-5 h-5 mr-2 text-green-400" />
-              Performance Trends
+            <CardTitle className="flex items-center gap-2 text-foreground">
+              <TrendingUp className="w-5 h-5 text-primary" />
+              Performance
             </CardTitle>
-            <CardDescription className="text-gray-400">
-              Track performance over time
+            <CardDescription>
+              System performance metrics
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
-                <span className="text-gray-300">Response Time</span>
-                <span className="text-green-400 font-medium">< 100ms</span>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
-                <span className="text-gray-300">Error Rate</span>
-                <span className="text-green-400 font-medium">0.1%</span>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
-                <span className="text-gray-300">Memory Usage</span>
-                <span className="text-yellow-400 font-medium">45%</span>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-gray-700 rounded-lg">
-                <span className="text-gray-300">CPU Usage</span>
-                <span className="text-green-400 font-medium">12%</span>
-              </div>
+            <div className="space-y-3">
+              {[
+                { label: "Response Time", value: "< 100ms", color: "text-green-500" },
+                { label: "Error Rate", value: "0.1%", color: "text-green-500" },
+                { label: "Memory Usage", value: "45%", color: "text-yellow-500" },
+                { label: "CPU Usage", value: "12%", color: "text-green-500" }
+              ].map((metric) => (
+                <div key={metric.label} className="flex justify-between items-center py-2 px-3 bg-muted/30 rounded-md">
+                  <span className="text-sm text-muted-foreground">{metric.label}</span>
+                  <span className={`text-sm font-medium ${metric.color}`}>{metric.value}</span>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
