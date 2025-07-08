@@ -1,7 +1,8 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   Users, 
   MessageSquare, 
@@ -11,50 +12,108 @@ import {
   Crown,
   Plus,
   ExternalLink,
-  Settings
+  Settings,
+  AlertTriangle
 } from "lucide-react";
+import { useSubscription } from "@/hooks/useSubscription";
+import SubscriptionStatus from "@/components/subscription/SubscriptionStatus";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Dashboard = () => {
-  // Mock data - replace with real data from your API
-  const stats = {
-    totalServers: 3,
-    totalUsers: 1250,
-    messagesModerated: 456,
+  const { subscription, loading, isActive } = useSubscription();
+  const [stats, setStats] = useState({
+    totalServers: 0,
+    totalUsers: 0,
+    messagesModerated: 0,
     uptime: 99.9
-  };
+  });
 
-  const recentActivity = [
-    { id: 1, action: "Server added", server: "Gaming Community", time: "2 hours ago" },
-    { id: 2, action: "Auto-mod triggered", server: "Study Group", time: "4 hours ago" },
-    { id: 3, action: "Custom command created", server: "Art Studio", time: "1 day ago" },
-  ];
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        // Fetch bot usage stats
+        const { data: usageData } = await supabase
+          .from('bot_usage_stats')
+          .select('*');
 
-  const connectedServers = [
-    { 
-      id: 1, 
-      name: "Gaming Community", 
-      members: 850, 
-      status: "active", 
-      plan: "Pro",
-      icon: "🎮"
-    },
-    { 
-      id: 2, 
-      name: "Study Group", 
-      members: 250, 
-      status: "active", 
-      plan: "Free",
-      icon: "📚"
-    },
-    { 
-      id: 3, 
-      name: "Art Studio", 
-      members: 150, 
-      status: "active", 
-      plan: "Free",
-      icon: "🎨"
-    },
-  ];
+        // Fetch guild access data
+        const { data: guildData } = await supabase
+          .from('guild_access')
+          .select('*')
+          .eq('is_active', true);
+
+        if (usageData) {
+          const totalMessages = usageData.reduce((sum, stat) => sum + (stat.messages_moderated || 0), 0);
+          const totalCommands = usageData.reduce((sum, stat) => sum + (stat.commands_used || 0), 0);
+          
+          setStats(prev => ({
+            ...prev,
+            messagesModerated: totalMessages,
+            totalServers: guildData?.length || 0
+          }));
+        }
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+      }
+    };
+
+    if (isActive) {
+      fetchStats();
+    }
+  }, [isActive]);
+
+  // Show access denied for non-subscribers
+  if (!loading && !isActive) {
+    return (
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Discord Bot Pro Dashboard</h1>
+            <p className="text-gray-600 mt-1">Subscribe to access premium features</p>
+          </div>
+        </div>
+
+        <Alert className="border-orange-200 bg-orange-50">
+          <AlertTriangle className="h-4 w-4 text-orange-600" />
+          <AlertDescription className="text-orange-800">
+            You need an active subscription to access the Discord Bot Pro dashboard and features.
+          </AlertDescription>
+        </Alert>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <SubscriptionStatus />
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>What You Get</CardTitle>
+              <CardDescription>Premium Discord bot features for $15/month</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <Shield className="w-4 h-4 text-green-600" />
+                  <span className="text-sm">Advanced moderation tools</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Settings className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm">Custom commands and automation</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <TrendingUp className="w-4 h-4 text-purple-600" />
+                  <span className="text-sm">Analytics and insights</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Crown className="w-4 h-4 text-yellow-600" />
+                  <span className="text-sm">Priority support</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -70,6 +129,9 @@ const Dashboard = () => {
         </Button>
       </div>
 
+      {/* Subscription Status */}
+      <SubscriptionStatus />
+
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
@@ -79,7 +141,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalServers}</div>
-            <p className="text-xs text-muted-foreground">+1 from last month</p>
+            <p className="text-xs text-muted-foreground">Active servers</p>
           </CardContent>
         </Card>
 
@@ -90,7 +152,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalUsers}</div>
-            <p className="text-xs text-muted-foreground">+12% from last month</p>
+            <p className="text-xs text-muted-foreground">Across all servers</p>
           </CardContent>
         </Card>
 
@@ -101,7 +163,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.messagesModerated}</div>
-            <p className="text-xs text-muted-foreground">This week</p>
+            <p className="text-xs text-muted-foreground">Total moderated</p>
           </CardContent>
         </Card>
 
@@ -118,37 +180,17 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Connected Servers */}
+        {/* Connected Servers - Real data will be loaded here */}
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Connected Servers</CardTitle>
             <CardDescription>Manage your Discord servers</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {connectedServers.map((server) => (
-                <div key={server.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-lg">
-                      {server.icon}
-                    </div>
-                    <div>
-                      <h3 className="font-medium">{server.name}</h3>
-                      <p className="text-sm text-gray-600">{server.members} members</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Badge variant={server.plan === "Pro" ? "default" : "secondary"}>
-                      {server.plan === "Pro" && <Crown className="w-3 h-3 mr-1" />}
-                      {server.plan}
-                    </Badge>
-                    <Button size="sm" variant="outline">
-                      <ExternalLink className="w-4 h-4 mr-1" />
-                      Manage
-                    </Button>
-                  </div>
-                </div>
-              ))}
+            <div className="text-center py-8 text-muted-foreground">
+              <Server className="w-12 h-12 mx-auto mb-4 opacity-50" />
+              <p>No servers connected yet</p>
+              <p className="text-sm">Add the bot to your Discord server to get started</p>
             </div>
           </CardContent>
         </Card>
@@ -160,17 +202,10 @@ const Dashboard = () => {
             <CardDescription>Latest actions across your servers</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {recentActivity.map((activity) => (
-                <div key={activity.id} className="flex items-start space-x-3">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium">{activity.action}</p>
-                    <p className="text-sm text-gray-600">{activity.server}</p>
-                    <p className="text-xs text-gray-400">{activity.time}</p>
-                  </div>
-                </div>
-              ))}
+            <div className="text-center py-8 text-muted-foreground">
+              <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
+              <p>No recent activity</p>
+              <p className="text-sm">Activity will appear here once you start using the bot</p>
             </div>
           </CardContent>
         </Card>
@@ -193,8 +228,8 @@ const Dashboard = () => {
               <span>Configure Settings</span>
             </Button>
             <Button variant="outline" className="h-20 flex-col space-y-2">
-              <Crown className="w-6 h-6" />
-              <span>Upgrade to Pro</span>
+              <ExternalLink className="w-6 h-6" />
+              <span>View Documentation</span>
             </Button>
           </div>
         </CardContent>
