@@ -10,38 +10,38 @@ const Landing = () => {
   const features = [
     {
       icon: Zap,
-      title: "Lightning Fast Setup",
-      description: "Complete Discord server setup in seconds with AI automation.",
+      title: "Lightning Setup",
+      description: "Complete Discord server configuration in under 60 seconds.",
       color: "from-purple-500 to-violet-500"
     },
     {
       icon: Sparkles,
-      title: "Smart AI Builder",
-      description: "AI analyzes your needs and builds the perfect server structure.",
+      title: "AI-Powered",
+      description: "Smart algorithms build the perfect server structure for you.",
       color: "from-blue-500 to-purple-500"
     },
     {
       icon: Shield,
-      title: "Advanced Moderation",
-      description: "Built-in moderation tools and auto-role management systems.",
+      title: "Auto Moderation",
+      description: "Built-in moderation tools and intelligent role management.",
       color: "from-green-500 to-emerald-500"
     },
     {
       icon: Settings,
-      title: "Complete Automation",
-      description: "Channels, permissions, bots - everything configured perfectly.",
+      title: "Full Automation",
+      description: "Channels, permissions, and bots configured perfectly.",
       color: "from-orange-500 to-red-500"
     },
     {
       icon: Users,
-      title: "Community Focused",
-      description: "Optimized for gaming, business, education, and social communities.",
+      title: "Community Ready",
+      description: "Optimized for gaming, business, and social communities.",
       color: "from-pink-500 to-rose-500"
     },
     {
       icon: Crown,
       title: "Premium Features",
-      description: "Advanced customization, priority support, and unlimited builds.",
+      description: "Advanced customization with unlimited server builds.",
       color: "from-indigo-500 to-purple-500"
     }
   ];
@@ -58,8 +58,8 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Modern Header */}
-      <header className="sticky top-0 z-50 glass border-b border-border/50">
-        <div className="container mx-auto px-4 py-4">
+      <header className="sticky top-0 z-50 glass border-b border-border/30">
+        <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center shadow-lg">
@@ -116,32 +116,36 @@ const Landing = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="py-24 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5"></div>
-        <div className="container mx-auto text-center relative">
-          <div className="animate-fade-in-up">
-            <Badge className="mb-6 bg-primary/10 text-primary hover:bg-primary/20 border-primary/20 px-4 py-2">
+      <section className="py-32 px-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5"></div>
+        <div className="container mx-auto text-center relative max-w-6xl">
+          <div className="animate-fade-in-up space-y-8">
+            <Badge className="mb-8 bg-primary/10 text-primary hover:bg-primary/20 border-primary/20 px-6 py-3 text-sm font-medium">
               <Sparkles className="w-4 h-4 mr-2" />
-              AI-Powered Discord Server Builder
+              AI-Powered Discord Builder
             </Badge>
-            <h1 className="text-6xl md:text-7xl font-bold text-foreground mb-8 max-w-5xl mx-auto leading-tight">
-              Build Perfect Discord Servers
-              <span className="gradient-primary bg-clip-text text-transparent block mt-2">
-                in Seconds with AI
+            
+            <h1 className="text-7xl md:text-8xl font-bold text-foreground leading-[0.9] tracking-tight">
+              Build Perfect
+              <br />
+              <span className="gradient-primary bg-clip-text text-transparent">
+                Discord Servers
               </span>
             </h1>
-            <p className="text-xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-              BuildForMe uses advanced AI to create fully customized Discord servers instantly. 
-              From gaming communities to business teams - we build it all for you.
+            
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium">
+              Advanced AI creates fully customized Discord servers instantly. 
+              From gaming communities to business teams.
             </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
+            
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-8">
               <Link to="/auth" className="w-full sm:w-auto">
-                <Button size="lg" className="gradient-primary text-white shadow-xl btn-hover focus-ring w-full sm:w-auto">
-                  Start Building Now
-                  <ArrowRight className="ml-2 w-5 h-5" />
+                <Button size="lg" className="gradient-primary text-white shadow-xl btn-hover focus-ring w-full sm:w-auto h-14 px-8 text-lg font-semibold">
+                  Start Building
+                  <ArrowRight className="ml-3 w-5 h-5" />
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="border-border text-muted-foreground hover:bg-muted hover:text-foreground btn-hover focus-ring w-full sm:w-auto">
+              <Button size="lg" variant="outline" className="border-border/50 text-muted-foreground hover:bg-muted/50 hover:text-foreground btn-hover focus-ring w-full sm:w-auto h-14 px-8 text-lg">
                 Watch Demo
               </Button>
             </div>
@@ -150,26 +154,26 @@ const Landing = () => {
       </section>
 
       {/* Features Grid */}
-      <section className="py-24 px-4 bg-secondary/20">
-        <div className="container mx-auto">
+      <section className="py-24 px-6">
+        <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-20">
-            <h2 className="text-4xl font-bold text-foreground mb-6">
-              Revolutionary Discord Bot Platform
+            <h2 className="text-5xl font-bold text-foreground mb-6 tracking-tight">
+              Revolutionary Platform
             </h2>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-              Experience the future of Discord server creation with intelligent automation
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto font-medium">
+              Experience intelligent Discord server automation
             </p>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <Card key={feature.title} className="border-border bg-card/50 backdrop-blur-sm card-hover animate-scale-in" style={{animationDelay: `${index * 0.1}s`}}>
-                <CardHeader className="pb-4">
-                  <div className={`w-14 h-14 bg-gradient-to-r ${feature.color} rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
-                    <feature.icon className="w-7 h-7 text-white" />
+              <Card key={feature.title} className="border-border/50 bg-card/30 backdrop-blur-sm card-hover animate-scale-in group" style={{animationDelay: `${index * 0.1}s`}}>
+                <CardHeader className="pb-6">
+                  <div className={`w-16 h-16 bg-gradient-to-r ${feature.color} rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                    <feature.icon className="w-8 h-8 text-white" />
                   </div>
-                  <CardTitle className="text-foreground text-xl">{feature.title}</CardTitle>
-                  <CardDescription className="text-muted-foreground leading-relaxed">
+                  <CardTitle className="text-foreground text-2xl font-semibold">{feature.title}</CardTitle>
+                  <CardDescription className="text-muted-foreground leading-relaxed text-base">
                     {feature.description}
                   </CardDescription>
                 </CardHeader>
@@ -180,88 +184,84 @@ const Landing = () => {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-24 px-4">
-        <div className="container mx-auto">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-foreground mb-6">
-                Everything You Need for $15/month
-              </h2>
-              <p className="text-lg text-muted-foreground">
-                Get access to all premium features with a simple subscription
-              </p>
-            </div>
+      <section className="py-24 px-6 bg-secondary/10">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-bold text-foreground mb-6 tracking-tight">
+              Simple Pricing
+            </h2>
+            <p className="text-xl text-muted-foreground font-medium">
+              Everything you need for $15/month
+            </p>
+          </div>
 
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div className="space-y-6">
-                {benefits.map((benefit, index) => (
-                  <div key={benefit} className="flex items-center space-x-4 animate-fade-in-up" style={{animationDelay: `${index * 0.1}s`}}>
-                    <div className="w-6 h-6 gradient-primary rounded-full flex items-center justify-center flex-shrink-0">
-                      <CheckCircle className="w-4 h-4 text-white" />
-                    </div>
-                    <span className="text-foreground font-medium">{benefit}</span>
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <div className="space-y-6">
+              {benefits.map((benefit, index) => (
+                <div key={benefit} className="flex items-center space-x-4 animate-fade-in-up" style={{animationDelay: `${index * 0.1}s`}}>
+                  <div className="w-8 h-8 gradient-primary rounded-full flex items-center justify-center flex-shrink-0">
+                    <CheckCircle className="w-5 h-5 text-white" />
                   </div>
-                ))}
-              </div>
-
-              <Card className="border-border bg-card/50 backdrop-blur-sm p-8">
-                <div className="text-center">
-                  <div className="w-20 h-20 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl">
-                    <Bot className="w-10 h-10 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-foreground mb-4">Ready to Start?</h3>
-                  <p className="text-muted-foreground mb-6">
-                    Join thousands of communities using BuildForMe to create amazing Discord servers.
-                  </p>
-                  <Link to="/auth">
-                    <Button className="gradient-primary text-white shadow-lg btn-hover focus-ring w-full">
-                      Start Building Now
-                      <ArrowRight className="ml-2 w-4 h-4" />
-                    </Button>
-                  </Link>
+                  <span className="text-foreground font-medium text-lg">{benefit}</span>
                 </div>
-              </Card>
+              ))}
             </div>
+
+            <Card className="border-border/50 bg-card/50 backdrop-blur-sm p-10 text-center">
+              <div className="w-24 h-24 gradient-primary rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-xl">
+                <Bot className="w-12 h-12 text-white" />
+              </div>
+              <h3 className="text-3xl font-bold text-foreground mb-4">Ready to Start?</h3>
+              <p className="text-muted-foreground mb-8 text-lg leading-relaxed">
+                Join thousands of communities using BuildForMe to create amazing Discord servers.
+              </p>
+              <Link to="/auth">
+                <Button className="gradient-primary text-white shadow-lg btn-hover focus-ring w-full h-14 text-lg font-semibold">
+                  Start Building
+                  <ArrowRight className="ml-3 w-5 h-5" />
+                </Button>
+              </Link>
+            </Card>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-secondary/20 text-foreground py-16 px-4 border-t border-border/50">
-        <div className="container mx-auto">
+      <footer className="bg-secondary/20 text-foreground py-16 px-6 border-t border-border/30">
+        <div className="container mx-auto max-w-6xl">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div className="md:col-span-2">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center">
-                  <Bot className="w-6 h-6 text-white" />
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center">
+                  <Bot className="w-7 h-7 text-white" />
                 </div>
-                <span className="font-bold text-xl">BuildForMe</span>
+                <span className="font-bold text-2xl">BuildForMe</span>
               </div>
-              <p className="text-muted-foreground leading-relaxed max-w-md">
-                The AI-powered Discord server builder that creates perfect communities in seconds.
+              <p className="text-muted-foreground leading-relaxed max-w-md text-lg">
+                The AI-powered Discord server builder that creates perfect communities instantly.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold mb-4 text-foreground">Product</h4>
+              <h4 className="font-semibold mb-4 text-foreground text-lg">Product</h4>
               <div className="space-y-3">
                 <Link to="/auth" className="text-muted-foreground hover:text-foreground block transition-colors">Features</Link>
                 <Link to="/auth" className="text-muted-foreground hover:text-foreground block transition-colors">Pricing</Link>
               </div>
             </div>
             <div>
-              <h4 className="font-semibold mb-4 text-foreground">Support</h4>
+              <h4 className="font-semibold mb-4 text-foreground text-lg">Support</h4>
               <div className="space-y-3">
                 <a href="#" className="text-muted-foreground hover:text-foreground block transition-colors">Help Center</a>
                 <a href="#" className="text-muted-foreground hover:text-foreground block transition-colors">Contact Us</a>
               </div>
             </div>
           </div>
-          <div className="border-t border-border/50 pt-8 text-center text-muted-foreground">
+          <div className="border-t border-border/30 pt-8 text-center text-muted-foreground">
             <p>&copy; 2024 BuildForMe. All rights reserved.</p>
           </div>
         </div>
-      </footer>
-    </div>
+      </div>
+    </footer>
   );
 };
 
