@@ -38,6 +38,15 @@ serve(async (req) => {
     
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // First check if user already has subscription status in database
+    const { data: existingSubscriber } = await supabaseClient
+      .from("subscribers")
+      .select("*")
+      .eq("email", user.email)
+      .single();
+    
+    logStep("Existing subscriber data", existingSubscriber);
+
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2023-10-16",
     });
@@ -45,7 +54,7 @@ serve(async (req) => {
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     
     if (customers.data.length === 0) {
-      logStep("No customer found, updating unsubscribed state");
+      logStep("No Stripe customer found, updating unsubscribed state");
       await supabaseClient.from("subscribers").upsert({
         email: user.email,
         user_id: user.id,
@@ -60,6 +69,7 @@ serve(async (req) => {
       return new Response(JSON.stringify({ 
         subscription_status: 'pending',
         subscription_tier: null,
+        subscription_start: null,
         subscription_end: null 
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -70,6 +80,7 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     logStep("Found Stripe customer", { customerId });
 
+    // Check for active subscriptions
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
       status: "active",
@@ -80,14 +91,16 @@ serve(async (req) => {
     let subscriptionStatus = 'pending';
     let subscriptionStart = null;
     let subscriptionEnd = null;
+    let subscriptionTier = 'basic';
 
     if (hasActiveSub) {
       const subscription = subscriptions.data[0];
       subscriptionStatus = 'active';
       subscriptionStart = new Date(subscription.current_period_start * 1000).toISOString();
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-      logStep("Active subscription found", { 
+      logStep("✅ ACTIVE subscription found", { 
         subscriptionId: subscription.id, 
+        status: subscription.status,
         startDate: subscriptionStart,
         endDate: subscriptionEnd 
       });
@@ -107,40 +120,54 @@ serve(async (req) => {
         subscriptionStart = new Date(latestSub.current_period_start * 1000).toISOString();
         subscriptionEnd = new Date(latestSub.current_period_end * 1000).toISOString();
       }
-      logStep("No active subscription found", { status: subscriptionStatus });
+      logStep("❌ No active subscription found", { status: subscriptionStatus });
     }
 
-    await supabaseClient.from("subscribers").upsert({
+    // Update database with current status
+    const dbUpdate = {
       email: user.email,
       user_id: user.id,
       stripe_customer_id: customerId,
       discord_user_id: user.user_metadata?.provider_id || null,
       discord_username: user.user_metadata?.user_name || null,
       subscription_status: subscriptionStatus,
-      subscription_tier: 'basic',
+      subscription_tier: subscriptionTier,
       subscription_start: subscriptionStart,
       subscription_end: subscriptionEnd,
       updated_at: new Date().toISOString(),
-    }, { onConflict: 'email' });
+    };
+
+    await supabaseClient.from("subscribers").upsert(dbUpdate, { onConflict: 'email' });
 
     logStep("Updated database with subscription info", { 
       subscription_status: subscriptionStatus, 
-      subscription_tier: 'basic' 
+      subscription_tier: subscriptionTier,
+      isActive: subscriptionStatus === 'active'
     });
     
-    return new Response(JSON.stringify({
+    const response = {
       subscription_status: subscriptionStatus,
-      subscription_tier: 'basic',
+      subscription_tier: subscriptionTier,
       subscription_start: subscriptionStart,
       subscription_end: subscriptionEnd
-    }), {
+    };
+
+    logStep("Returning response", response);
+    
+    return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR in check-subscription", { message: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    logStep("❌ ERROR in check-subscription", { message: errorMessage });
+    return new Response(JSON.stringify({ 
+      error: errorMessage,
+      subscription_status: 'pending',
+      subscription_tier: null,
+      subscription_start: null,
+      subscription_end: null
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

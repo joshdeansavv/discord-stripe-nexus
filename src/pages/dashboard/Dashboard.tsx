@@ -68,8 +68,22 @@ const Dashboard = () => {
     }
   }, [isActive]);
 
+  // Show loading state while checking subscription
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl animate-pulse">
+            <Bot className="w-8 h-8 text-white" />
+          </div>
+          <div className="text-foreground">Verifying subscription...</div>
+        </div>
+      </div>
+    );
+  }
+
   // Enhanced non-subscriber view
-  if (!loading && !isActive) {
+  if (!isActive) {
     return (
       <div className="space-y-8 p-6">
         <div className="text-center mb-12">

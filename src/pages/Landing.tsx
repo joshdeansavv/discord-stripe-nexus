@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
-import { ArrowRight, Shield, Zap, Users, Settings, Crown, Star, Bot, Sparkles, CheckCircle, ArrowUpRight } from "lucide-react";
+import { ArrowRight, Shield, Zap, Users, Settings, Crown, Star, Bot, Sparkles, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -135,17 +135,12 @@ const Landing = () => {
               From custom themes to optimized role structures - we build it all for you.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
-              <a 
-                href="https://discord.com/oauth2/authorize?client_id=1391912825534025879"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto"
-              >
+              <Link to="/auth" className="w-full sm:w-auto">
                 <Button size="lg" className="gradient-primary text-white shadow-xl btn-hover focus-ring w-full sm:w-auto">
-                  Add to Discord
-                  <ArrowUpRight className="ml-2 w-5 h-5" />
+                  Subscribe to Get Started
+                  <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
-              </a>
+              </Link>
               <Button size="lg" variant="outline" className="border-muted-foreground/20 text-muted-foreground hover:bg-muted hover:text-foreground btn-hover focus-ring w-full sm:w-auto">
                 Watch Demo
               </Button>
