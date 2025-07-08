@@ -14,7 +14,137 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bot_usage_stats: {
+        Row: {
+          commands_used: number | null
+          created_at: string
+          discord_guild_id: string
+          id: string
+          last_activity: string | null
+          messages_moderated: number | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          commands_used?: number | null
+          created_at?: string
+          discord_guild_id: string
+          id?: string
+          last_activity?: string | null
+          messages_moderated?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          commands_used?: number | null
+          created_at?: string
+          discord_guild_id?: string
+          id?: string
+          last_activity?: string | null
+          messages_moderated?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      guild_access: {
+        Row: {
+          bot_added_at: string | null
+          created_at: string
+          discord_guild_id: string
+          discord_guild_name: string | null
+          id: string
+          invite_code: string | null
+          is_active: boolean | null
+          subscriber_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          bot_added_at?: string | null
+          created_at?: string
+          discord_guild_id: string
+          discord_guild_name?: string | null
+          id?: string
+          invite_code?: string | null
+          is_active?: boolean | null
+          subscriber_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          bot_added_at?: string | null
+          created_at?: string
+          discord_guild_id?: string
+          discord_guild_name?: string | null
+          id?: string
+          invite_code?: string | null
+          is_active?: boolean | null
+          subscriber_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guild_access_subscriber_id_fkey"
+            columns: ["subscriber_id"]
+            isOneToOne: false
+            referencedRelation: "subscribers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscribers: {
+        Row: {
+          created_at: string
+          discord_user_id: string | null
+          discord_username: string | null
+          email: string
+          id: string
+          stripe_customer_id: string | null
+          subscription_end: string | null
+          subscription_start: string | null
+          subscription_status:
+            | Database["public"]["Enums"]["subscription_status"]
+            | null
+          subscription_tier: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          discord_user_id?: string | null
+          discord_username?: string | null
+          email: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscription_end?: string | null
+          subscription_start?: string | null
+          subscription_status?:
+            | Database["public"]["Enums"]["subscription_status"]
+            | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          discord_user_id?: string | null
+          discord_username?: string | null
+          email?: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscription_end?: string | null
+          subscription_start?: string | null
+          subscription_status?:
+            | Database["public"]["Enums"]["subscription_status"]
+            | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +153,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      subscription_status: "active" | "cancelled" | "expired" | "pending"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +280,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      subscription_status: ["active", "cancelled", "expired", "pending"],
+    },
   },
 } as const
