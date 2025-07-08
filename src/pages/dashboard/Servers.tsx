@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Server, Users, Activity, Trash2 } from 'lucide-react';
+import { Plus, Server, Users, Activity, Trash2, ExternalLink, Bot } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -73,7 +73,7 @@ const Servers = () => {
 
       toast({
         title: 'Success',
-        description: 'Server created successfully!',
+        description: 'Server registered successfully! You can now add the bot to this server.',
       });
 
       setServerName('');
@@ -102,7 +102,7 @@ const Servers = () => {
 
       toast({
         title: 'Success',
-        description: 'Server deleted successfully!',
+        description: 'Server removed successfully!',
       });
 
       fetchServers();
@@ -112,6 +112,28 @@ const Servers = () => {
         description: error.message,
         variant: 'destructive',
       });
+    }
+  };
+
+  const getBotStatus = (subscriptionStatus: string, usageCount: number) => {
+    if (subscriptionStatus === 'active') {
+      return {
+        status: 'Active',
+        variant: 'default' as const,
+        description: 'Bot is active and monitoring'
+      };
+    } else if (usageCount > 0) {
+      return {
+        status: 'Inactive',
+        variant: 'secondary' as const,
+        description: 'Bot was active but subscription expired'
+      };
+    } else {
+      return {
+        status: 'Ready to Add',
+        variant: 'outline' as const,
+        description: 'Server registered, ready for bot invitation'
+      };
     }
   };
 
@@ -131,31 +153,38 @@ const Servers = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Discord Servers</h1>
-          <p className="text-muted-foreground">Manage your Discord server integrations</p>
+          <p className="text-muted-foreground">
+            Manage Discord servers where your bot is active or can be added
+          </p>
         </div>
         <Button onClick={() => setShowForm(true)} className="gap-2">
           <Plus className="w-4 h-4" />
-          Add Server
+          Register Server
         </Button>
       </div>
 
       {showForm && (
         <Card>
           <CardHeader>
-            <CardTitle>Add New Server</CardTitle>
-            <CardDescription>Connect a new Discord server to your account</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <Bot className="w-5 h-5" />
+              Register New Discord Server
+            </CardTitle>
+            <CardDescription>
+              Register a Discord server to track bot usage and manage access
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label htmlFor="serverName" className="block text-sm font-medium mb-2">
-                  Server Name
+                  Server Name *
                 </label>
                 <Input
                   id="serverName"
                   value={serverName}
                   onChange={(e) => setServerName(e.target.value)}
-                  placeholder="Enter server name"
+                  placeholder="My Discord Server"
                   required
                 />
               </div>
@@ -169,10 +198,13 @@ const Servers = () => {
                   onChange={(e) => setInviteUrl(e.target.value)}
                   placeholder="https://discord.gg/..."
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Add an invite link to make it easier to access your server
+                </p>
               </div>
               <div className="flex gap-2">
                 <Button type="submit" disabled={submitting}>
-                  {submitting ? 'Adding...' : 'Add Server'}
+                  {submitting ? 'Registering...' : 'Register Server'}
                 </Button>
                 <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
                   Cancel
@@ -184,73 +216,111 @@ const Servers = () => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {servers.map((server) => (
-          <Card key={server.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Server className="w-5 h-5 text-primary" />
-                  <CardTitle className="text-lg">{server.name}</CardTitle>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => deleteServer(server.id)}
-                  className="text-destructive hover:text-destructive"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant={server.subscription_status === 'active' ? 'default' : 'secondary'}>
-                  {server.subscription_status}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Usage</span>
-                <span className="font-medium">
-                  {server.usage_count} / {server.monthly_limit}
-                </span>
-              </div>
-              <div className="w-full bg-secondary rounded-full h-2">
-                <div
-                  className="bg-primary h-2 rounded-full transition-all"
-                  style={{
-                    width: `${Math.min((server.usage_count / server.monthly_limit) * 100, 100)}%`,
-                  }}
-                />
-              </div>
-              {server.invite_url && (
-                <div className="pt-2">
-                  <a
-                    href={server.invite_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline"
+        {servers.map((server) => {
+          const botStatus = getBotStatus(server.subscription_status, server.usage_count);
+          return (
+            <Card key={server.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Server className="w-5 h-5 text-primary" />
+                    <CardTitle className="text-lg">{server.name}</CardTitle>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => deleteServer(server.id)}
+                    className="text-destructive hover:text-destructive"
                   >
-                    Join Server →
-                  </a>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+                <div className="flex items-center gap-2">
+                  <Badge variant={botStatus.variant}>
+                    {botStatus.status}
+                  </Badge>
+                  {server.subscription_status === 'active' && (
+                    <Bot className="w-4 h-4 text-green-500" />
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  {botStatus.description}
+                </p>
+                
+                {server.subscription_status === 'active' && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Monthly Usage</span>
+                      <span className="font-medium">
+                        {server.usage_count} / {server.monthly_limit}
+                      </span>
+                    </div>
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div
+                        className="bg-primary h-2 rounded-full transition-all"
+                        style={{
+                          width: `${Math.min((server.usage_count / server.monthly_limit) * 100, 100)}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between pt-2">
+                  <div className="text-xs text-muted-foreground">
+                    Added {new Date(server.created_at).toLocaleDateString()}
+                  </div>
+                  {server.invite_url && (
+                    <a
+                      href={server.invite_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                    >
+                      Join Server <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {servers.length === 0 && (
         <Card className="text-center py-12">
           <CardContent>
-            <Server className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2">No servers yet</h3>
+            <Bot className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium mb-2">No servers registered yet</h3>
             <p className="text-muted-foreground mb-4">
-              Add your first Discord server to get started
+              Register your first Discord server to start tracking bot usage and manage access
             </p>
             <Button onClick={() => setShowForm(true)} className="gap-2">
               <Plus className="w-4 h-4" />
-              Add Server
+              Register Your First Server
             </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {servers.length > 0 && (
+        <Card className="bg-muted/50">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <Bot className="w-5 h-5 text-primary mt-0.5" />
+              <div className="text-sm">
+                <h4 className="font-medium mb-1">How to add the bot to your server:</h4>
+                <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+                  <li>Register your Discord server above</li>
+                  <li>Ensure you have "Manage Server" permissions</li>
+                  <li>Use the bot invitation link (contact support for the link)</li>
+                  <li>Grant necessary permissions to the bot</li>
+                  <li>Activate your subscription to start monitoring</li>
+                </ol>
+              </div>
+            </div>
           </CardContent>
         </Card>
       )}
