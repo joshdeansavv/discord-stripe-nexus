@@ -260,8 +260,8 @@ const Landing = () => {
             <p>&copy; 2024 BuildForMe. All rights reserved.</p>
           </div>
         </div>
-      </div>
-    </footer>
+      </footer>
+    </div>
   );
 };
 
