@@ -14,6 +14,35 @@ export type Database = {
   }
   public: {
     Tables: {
+      billing_events: {
+        Row: {
+          id: string
+          inserted_at: string | null
+          server_id: string
+          stripe_event: Json
+        }
+        Insert: {
+          id: string
+          inserted_at?: string | null
+          server_id: string
+          stripe_event: Json
+        }
+        Update: {
+          id?: string
+          inserted_at?: string | null
+          server_id?: string
+          stripe_event?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_events_server_id_fkey"
+            columns: ["server_id"]
+            isOneToOne: false
+            referencedRelation: "servers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bot_usage_stats: {
         Row: {
           commands_used: number | null
@@ -94,6 +123,74 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      servers: {
+        Row: {
+          created_at: string | null
+          id: string
+          invite_url: string | null
+          monthly_limit: number | null
+          name: string
+          owner: string
+          stripe_customer_id: string | null
+          subscription_status: string | null
+          updated_at: string | null
+          usage_count: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          invite_url?: string | null
+          monthly_limit?: number | null
+          name: string
+          owner: string
+          stripe_customer_id?: string | null
+          subscription_status?: string | null
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          invite_url?: string | null
+          monthly_limit?: number | null
+          name?: string
+          owner?: string
+          stripe_customer_id?: string | null
+          subscription_status?: string | null
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "servers_owner_fkey"
+            columns: ["owner"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscribers: {
         Row: {
           created_at: string
@@ -150,7 +247,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_usage: {
+        Args: { server_id: string; amount: number }
+        Returns: undefined
+      }
+      reset_monthly_usage: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       subscription_status: "active" | "cancelled" | "expired" | "pending"
