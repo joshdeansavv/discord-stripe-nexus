@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -88,27 +87,27 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/20 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="flex items-center justify-center mb-8">
-          <Link to="/" className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors">
+          <Link to="/" className="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="w-4 h-4" />
             <span>Back to home</span>
           </Link>
         </div>
 
-        <Card className="border-0 shadow-2xl">
+        <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-2xl">
           <CardHeader className="text-center space-y-4">
             <div className="flex items-center justify-center">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 gradient-primary rounded-lg flex items-center justify-center shadow-lg">
                 <Shield className="w-6 h-6 text-white" />
               </div>
             </div>
             <div>
-              <CardTitle className="text-2xl">
+              <CardTitle className="text-2xl text-foreground">
                 {isLogin ? "Welcome back" : "Create account"}
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-muted-foreground">
                 {isLogin ? "Sign in to your account" : "Sign up to get started"}
               </CardDescription>
             </div>
@@ -118,7 +117,7 @@ const Auth = () => {
             {/* Discord Login Button */}
             <Button 
               onClick={handleDiscordLogin}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+              className="w-full gradient-primary text-white hover:opacity-90 transition-opacity"
               size="lg"
             >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
@@ -129,17 +128,17 @@ const Auth = () => {
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
+                <span className="w-full border-t border-border/50" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-muted-foreground">Or continue with email</span>
+                <span className="bg-card px-2 text-muted-foreground">Or continue with email</span>
               </div>
             </div>
 
             {/* Email/Password Form */}
             <form onSubmit={handleEmailAuth} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-foreground">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -147,10 +146,11 @@ const Auth = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  className="bg-input border-border/50 text-foreground placeholder:text-muted-foreground focus:border-primary"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-foreground">Password</Label>
                 <Input
                   id="password"
                   type="password"
@@ -158,11 +158,12 @@ const Auth = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  className="bg-input border-border/50 text-foreground placeholder:text-muted-foreground focus:border-primary"
                 />
               </div>
               <Button 
                 type="submit" 
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" 
+                className="w-full gradient-primary text-white hover:opacity-90 transition-opacity" 
                 disabled={loading}
                 size="lg"
               >
@@ -174,7 +175,7 @@ const Auth = () => {
               <button
                 type="button"
                 onClick={() => setIsLogin(!isLogin)}
-                className="text-sm text-blue-600 hover:text-blue-800 underline"
+                className="text-sm text-primary hover:text-primary/80 underline transition-colors"
               >
                 {isLogin ? "Need an account? Sign up" : "Already have an account? Sign in"}
               </button>
