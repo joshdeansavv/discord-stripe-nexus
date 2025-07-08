@@ -28,10 +28,11 @@ import {
   CreditCard, 
   Users, 
   BarChart3, 
-  Shield, 
+  Bot, 
   LogOut,
   User,
-  Bell
+  Bell,
+  Sparkles
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -87,36 +88,34 @@ const DashboardLayout = () => {
   const menuItems = [
     { title: "Overview", url: "/dashboard", icon: Home },
     { title: "Servers", url: "/dashboard/servers", icon: Users },
+    { title: "AI Builder", url: "/dashboard/builder", icon: Sparkles },
     { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
-    { title: "Moderation", url: "/dashboard/moderation", icon: Shield },
     { title: "Billing", url: "/dashboard/billing", icon: CreditCard },
     { title: "Settings", url: "/dashboard/settings", icon: Settings },
   ];
 
-  const isActive = (path: string) => location.pathname === path;
-
   if (!user) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">Loading...</div>;
   }
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
-        <Sidebar className="w-64">
+      <div className="min-h-screen flex w-full bg-gray-900">
+        <Sidebar className="w-64 bg-gray-800 border-gray-700">
           <SidebarContent>
             {/* Logo */}
-            <div className="p-6 border-b">
+            <div className="p-6 border-b border-gray-700">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-white" />
+                <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
+                  <Bot className="w-5 h-5 text-white" />
                 </div>
-                <span className="font-bold text-lg">DiscordBot Pro</span>
+                <span className="font-bold text-lg text-white">BuildForMe</span>
               </div>
             </div>
 
             {/* Navigation */}
             <SidebarGroup>
-              <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
+              <SidebarGroupLabel className="text-gray-400">Dashboard</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {menuItems.map((item) => (
@@ -127,8 +126,8 @@ const DashboardLayout = () => {
                           className={({ isActive }) =>
                             `flex items-center space-x-3 px-3 py-2 rounded-md transition-colors ${
                               isActive 
-                                ? "bg-blue-100 text-blue-900 font-medium" 
-                                : "text-gray-700 hover:bg-gray-100"
+                                ? "bg-purple-900/50 text-purple-200 font-medium" 
+                                : "text-gray-300 hover:bg-gray-700 hover:text-white"
                             }`
                           }
                         >
@@ -146,17 +145,17 @@ const DashboardLayout = () => {
 
         <div className="flex-1 flex flex-col">
           {/* Header */}
-          <header className="border-b bg-white px-6 py-4">
+          <header className="border-b border-gray-700 bg-gray-800 px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <SidebarTrigger />
-                <h1 className="text-xl font-semibold text-gray-900">
+                <SidebarTrigger className="text-gray-300 hover:text-white" />
+                <h1 className="text-xl font-semibold text-white">
                   Dashboard
                 </h1>
               </div>
 
               <div className="flex items-center space-x-4">
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white">
                   <Bell className="w-4 h-4" />
                 </Button>
                 
@@ -165,32 +164,32 @@ const DashboardLayout = () => {
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                       <Avatar className="h-8 w-8">
                         <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.email} />
-                        <AvatarFallback>
+                        <AvatarFallback className="bg-gray-700 text-white">
                           {user?.email?.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuContent className="w-56 bg-gray-800 border-gray-700" align="end" forceMount>
                     <div className="flex items-center justify-start gap-2 p-2">
                       <div className="flex flex-col space-y-1 leading-none">
-                        <p className="font-medium">{user?.user_metadata?.full_name || "User"}</p>
-                        <p className="w-[200px] truncate text-sm text-muted-foreground">
+                        <p className="font-medium text-white">{user?.user_metadata?.full_name || "User"}</p>
+                        <p className="w-[200px] truncate text-sm text-gray-400">
                           {user?.email}
                         </p>
                       </div>
                     </div>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-gray-700" />
+                    <DropdownMenuItem className="text-gray-300 hover:text-white hover:bg-gray-700">
                       <User className="mr-2 h-4 w-4" />
                       <span>Profile</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem className="text-gray-300 hover:text-white hover:bg-gray-700">
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Settings</span>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut}>
+                    <DropdownMenuSeparator className="bg-gray-700" />
+                    <DropdownMenuItem onClick={handleSignOut} className="text-gray-300 hover:text-white hover:bg-gray-700">
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Log out</span>
                     </DropdownMenuItem>
@@ -201,7 +200,7 @@ const DashboardLayout = () => {
           </header>
 
           {/* Main Content */}
-          <main className="flex-1 p-6 bg-gray-50">
+          <main className="flex-1 p-6 bg-gray-900">
             <Outlet />
           </main>
         </div>
