@@ -14,7 +14,10 @@ import {
   ExternalLink,
   Settings,
   AlertTriangle,
-  Zap
+  Zap,
+  ArrowUpRight,
+  Activity,
+  BarChart3
 } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import SubscriptionStatus from "@/components/subscription/SubscriptionStatus";
@@ -51,7 +54,7 @@ const Dashboard = () => {
           setStats(prev => ({
             ...prev,
             serversBuilt: totalCommands,
-            rolesOptimized: Math.floor(totalMessages / 10), // Approximate role optimizations
+            rolesOptimized: Math.floor(totalMessages / 10),
             totalServers: guildData?.length || 0
           }));
         }
@@ -65,50 +68,53 @@ const Dashboard = () => {
     }
   }, [isActive]);
 
-  // Show access denied for non-subscribers
+  // Enhanced non-subscriber view
   if (!loading && !isActive) {
     return (
-      <div className="space-y-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-white">BuildForMe AI Dashboard</h1>
-            <p className="text-gray-400 mt-1">Subscribe to access AI server building features</p>
+      <div className="space-y-8 p-6">
+        <div className="text-center mb-12">
+          <div className="w-20 h-20 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl">
+            <Bot className="w-10 h-10 text-white" />
           </div>
+          <h1 className="text-4xl font-bold text-foreground mb-4">Welcome to BuildForMe AI</h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Subscribe to unlock AI-powered Discord server building capabilities
+          </p>
         </div>
 
-        <Alert className="border-orange-600 bg-orange-900/20">
-          <AlertTriangle className="h-4 w-4 text-orange-400" />
+        <Alert className="border-orange-500/20 bg-orange-500/10 max-w-4xl mx-auto">
+          <AlertTriangle className="h-5 w-5 text-orange-400" />
           <AlertDescription className="text-orange-200">
             You need an active subscription to access BuildForMe's AI server building capabilities.
           </AlertDescription>
         </Alert>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
           <SubscriptionStatus />
           
-          <Card className="bg-gray-800 border-gray-700">
+          <Card className="bg-card/50 border-border/50 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-white">What You Get</CardTitle>
-              <CardDescription className="text-gray-400">AI-powered Discord server building for $15/month</CardDescription>
+              <CardTitle className="text-foreground flex items-center">
+                <Sparkles className="w-5 h-5 mr-2 text-primary" />
+                What You Get
+              </CardTitle>
+              <CardDescription className="text-muted-foreground">
+                AI-powered Discord server building for $15/month
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <Sparkles className="w-4 h-4 text-purple-400" />
-                  <span className="text-sm text-gray-300">AI server building in seconds</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Bot className="w-4 h-4 text-blue-400" />
-                  <span className="text-sm text-gray-300">Custom themes and layouts</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Settings className="w-4 h-4 text-green-400" />
-                  <span className="text-sm text-gray-300">Smart role analysis and optimization</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Zap className="w-4 h-4 text-yellow-400" />
-                  <span className="text-sm text-gray-300">Unlimited server builds</span>
-                </div>
+              <div className="space-y-4">
+                {[
+                  { icon: Sparkles, text: "AI server building in seconds", color: "text-purple-400" },
+                  { icon: Bot, text: "Custom themes and layouts", color: "text-blue-400" },
+                  { icon: Settings, text: "Smart role analysis and optimization", color: "text-green-400" },
+                  { icon: Zap, text: "Unlimited server builds", color: "text-yellow-400" }
+                ].map((item, index) => (
+                  <div key={index} className="flex items-center space-x-3 p-3 rounded-lg bg-muted/20 border border-border/30">
+                    <item.icon className={`w-5 h-5 ${item.color}`} />
+                    <span className="text-foreground font-medium">{item.text}</span>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -117,129 +123,158 @@ const Dashboard = () => {
     );
   }
 
+  // Enhanced subscriber dashboard
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-6">
       {/* Welcome Section */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-white">Welcome back!</h1>
-          <p className="text-gray-400 mt-1">Ready to build amazing Discord servers with AI?</p>
+          <h1 className="text-4xl font-bold text-foreground mb-2">Welcome back!</h1>
+          <p className="text-lg text-muted-foreground">Ready to build amazing Discord servers with AI?</p>
         </div>
-        <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-          <Plus className="w-4 h-4 mr-2" />
-          Build New Server
-        </Button>
+        <div className="flex gap-3">
+          <a 
+            href="https://discord.com/oauth2/authorize?client_id=1391912825534025879"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button className="gradient-primary text-white shadow-lg btn-hover focus-ring">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Bot to Server
+              <ArrowUpRight className="w-4 h-4 ml-2" />
+            </Button>
+          </a>
+        </div>
       </div>
 
       {/* Subscription Status */}
       <SubscriptionStatus />
 
-      {/* Stats Grid */}
+      {/* Enhanced Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-gray-800 border-gray-700">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-300">Active Servers</CardTitle>
-            <Server className="h-4 w-4 text-gray-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">{stats.totalServers}</div>
-            <p className="text-xs text-gray-400">Connected servers</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gray-800 border-gray-700">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-300">Servers Built</CardTitle>
-            <Sparkles className="h-4 w-4 text-purple-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">{stats.serversBuilt}</div>
-            <p className="text-xs text-gray-400">AI-generated servers</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gray-800 border-gray-700">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-300">Roles Optimized</CardTitle>
-            <Bot className="h-4 w-4 text-green-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">{stats.rolesOptimized}</div>
-            <p className="text-xs text-gray-400">Auto-fixed roles</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gray-800 border-gray-700">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-300">Uptime</CardTitle>
-            <TrendingUp className="h-4 w-4 text-blue-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-white">{stats.uptime}%</div>
-            <p className="text-xs text-gray-400">Last 30 days</p>
-          </CardContent>
-        </Card>
+        {[
+          { 
+            title: "Active Servers", 
+            value: stats.totalServers, 
+            icon: Server, 
+            color: "from-blue-500 to-cyan-500",
+            description: "Connected servers"
+          },
+          { 
+            title: "Servers Built", 
+            value: stats.serversBuilt, 
+            icon: Sparkles, 
+            color: "from-purple-500 to-pink-500",
+            description: "AI-generated servers"
+          },
+          { 
+            title: "Roles Optimized", 
+            value: stats.rolesOptimized, 
+            icon: Bot, 
+            color: "from-green-500 to-emerald-500",
+            description: "Auto-fixed roles"
+          },
+          { 
+            title: "Uptime", 
+            value: `${stats.uptime}%`, 
+            icon: TrendingUp, 
+            color: "from-orange-500 to-red-500",
+            description: "Last 30 days"
+          }
+        ].map((stat, index) => (
+          <Card key={stat.title} className="bg-card/50 border-border/50 backdrop-blur-sm card-hover">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
+              <div className={`w-10 h-10 bg-gradient-to-r ${stat.color} rounded-lg flex items-center justify-center shadow-lg`}>
+                <stat.icon className="h-5 w-5 text-white" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-foreground mb-1">{stat.value}</div>
+              <p className="text-xs text-muted-foreground">{stat.description}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* AI Server Builder */}
-        <Card className="lg:col-span-2 bg-gray-800 border-gray-700">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Enhanced AI Server Builder */}
+        <Card className="lg:col-span-2 bg-card/50 border-border/50 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-white flex items-center">
-              <Sparkles className="w-5 h-5 mr-2 text-purple-400" />
+            <CardTitle className="text-foreground flex items-center text-xl">
+              <Sparkles className="w-6 h-6 mr-3 text-primary" />
               AI Server Builder
             </CardTitle>
-            <CardDescription className="text-gray-400">Build custom Discord servers in seconds</CardDescription>
+            <CardDescription className="text-muted-foreground text-base">
+              Build custom Discord servers in seconds with advanced AI
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-center py-8">
-              <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Bot className="w-8 h-8 text-white" />
+            <div className="text-center py-12">
+              <div className="w-20 h-20 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl">
+                <Bot className="w-10 h-10 text-white" />
               </div>
-              <p className="text-gray-300 mb-4">Ready to create your next server?</p>
-              <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-                Start Building with AI
-              </Button>
+              <h3 className="text-xl font-semibold text-foreground mb-3">Ready to create your next server?</h3>
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                Use our AI to generate complete Discord servers with custom themes, optimized roles, and perfect channel structures.
+              </p>
+              <a 
+                href="https://discord.com/oauth2/authorize?client_id=1391912825534025879"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button className="gradient-primary text-white shadow-lg btn-hover focus-ring">
+                  Start Building with AI
+                  <ArrowUpRight className="ml-2 w-4 h-4" />
+                </Button>
+              </a>
             </div>
           </CardContent>
         </Card>
 
-        {/* Recent Activity */}
-        <Card className="bg-gray-800 border-gray-700">
+        {/* Enhanced Recent Activity */}
+        <Card className="bg-card/50 border-border/50 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-white">Recent Activity</CardTitle>
-            <CardDescription className="text-gray-400">Latest AI builds and optimizations</CardDescription>
+            <CardTitle className="text-foreground flex items-center">
+              <Activity className="w-5 h-5 mr-2 text-primary" />
+              Recent Activity
+            </CardTitle>
+            <CardDescription className="text-muted-foreground">Latest AI builds and optimizations</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-center py-8 text-gray-400">
-              <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p className="text-gray-300">No recent activity</p>
-              <p className="text-sm text-gray-500">Start building servers to see activity here</p>
+            <div className="text-center py-8 text-muted-foreground">
+              <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-30" />
+              <p className="text-foreground font-medium mb-2">No recent activity</p>
+              <p className="text-sm">Start building servers to see activity here</p>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Quick Actions */}
-      <Card className="bg-gray-800 border-gray-700">
+      {/* Enhanced Quick Actions */}
+      <Card className="bg-card/50 border-border/50 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle className="text-white">Quick Actions</CardTitle>
-          <CardDescription className="text-gray-400">Common AI server building tasks</CardDescription>
+          <CardTitle className="text-foreground text-xl">Quick Actions</CardTitle>
+          <CardDescription className="text-muted-foreground">Common AI server building tasks</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="h-20 flex-col space-y-2 border-gray-600 text-gray-300 hover:bg-gray-700">
-              <Sparkles className="w-6 h-6 text-purple-400" />
-              <span>Build New Server</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex-col space-y-2 border-gray-600 text-gray-300 hover:bg-gray-700">
-              <Bot className="w-6 h-6 text-green-400" />
-              <span>Analyze Roles</span>
-            </Button>
-            <Button variant="outline" className="h-20 flex-col space-y-2 border-gray-600 text-gray-300 hover:bg-gray-700">
-              <Settings className="w-6 h-6 text-blue-400" />
-              <span>Optimize Server</span>
-            </Button>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { icon: Sparkles, title: "Build New Server", color: "from-purple-500 to-pink-500" },
+              { icon: Bot, title: "Analyze Roles", color: "from-green-500 to-emerald-500" },
+              { icon: Settings, title: "Optimize Server", color: "from-blue-500 to-cyan-500" }
+            ].map((action, index) => (
+              <Button 
+                key={action.title}
+                variant="outline" 
+                className="h-24 flex-col space-y-3 border-border/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground card-hover focus-ring"
+              >
+                <div className={`w-8 h-8 bg-gradient-to-r ${action.color} rounded-lg flex items-center justify-center shadow-lg`}>
+                  <action.icon className="w-5 h-5 text-white" />
+                </div>
+                <span className="font-medium">{action.title}</span>
+              </Button>
+            ))}
           </div>
         </CardContent>
       </Card>

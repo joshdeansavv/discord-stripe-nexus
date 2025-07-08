@@ -3,37 +3,93 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
-import { ArrowRight, Shield, Zap, Users, Settings, Crown, Star, Bot, Sparkles } from "lucide-react";
+import { ArrowRight, Shield, Zap, Users, Settings, Crown, Star, Bot, Sparkles, CheckCircle, ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
+  const features = [
+    {
+      icon: Zap,
+      title: "Lightning Fast Setup",
+      description: "Complete server setup in seconds, not hours. Our AI handles everything instantly.",
+      color: "from-yellow-500 to-orange-500"
+    },
+    {
+      icon: Sparkles,
+      title: "Custom AI Themes",
+      description: "Generate unique server themes tailored to your community's personality and needs.",
+      color: "from-purple-500 to-pink-500"
+    },
+    {
+      icon: Shield,
+      title: "Smart Role Analysis",
+      description: "AI analyzes and optimizes your server roles, fixing permissions and structure automatically.",
+      color: "from-green-500 to-emerald-500"
+    },
+    {
+      icon: Settings,
+      title: "Complete Automation",
+      description: "From channels to permissions, categories to bots - everything configured perfectly.",
+      color: "from-blue-500 to-cyan-500"
+    },
+    {
+      icon: Users,
+      title: "Community Optimized",
+      description: "AI understands your community type and builds the perfect server structure.",
+      color: "from-red-500 to-rose-500"
+    },
+    {
+      icon: Crown,
+      title: "Premium Features",
+      description: "Advanced AI capabilities, priority support, and unlimited server builds.",
+      color: "from-indigo-500 to-purple-500"
+    }
+  ];
+
+  const benefits = [
+    "AI server building in seconds",
+    "Custom themes and layouts",
+    "Smart role optimization",
+    "Unlimited server builds",
+    "Priority support",
+    "Advanced customization"
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
-      {/* Header */}
-      <header className="border-b border-gray-700 bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary">
+      {/* Enhanced Header */}
+      <header className="sticky top-0 z-50 glass border-b border-border/50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-                <Bot className="w-5 h-5 text-white" />
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center shadow-lg">
+                <Bot className="w-6 h-6 text-white" />
               </div>
-              <span className="font-bold text-xl text-white">BuildForMe</span>
+              <span className="font-bold text-xl text-foreground">BuildForMe</span>
             </div>
             
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-gray-300">Features</NavigationMenuTrigger>
+                  <NavigationMenuTrigger className="text-muted-foreground hover:text-foreground">
+                    Features
+                  </NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <div className="grid gap-3 p-6 w-[400px] bg-gray-800">
-                      <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-4 p-6 w-[500px] bg-card border border-border rounded-xl shadow-xl">
+                      <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
-                          <h4 className="font-medium text-white">AI Server Builder</h4>
-                          <p className="text-sm text-gray-400">Build complete servers in seconds</p>
+                          <div className="flex items-center space-x-2">
+                            <Sparkles className="w-4 h-4 text-primary" />
+                            <h4 className="font-medium text-foreground">AI Server Builder</h4>
+                          </div>
+                          <p className="text-sm text-muted-foreground">Build complete servers in seconds</p>
                         </div>
                         <div className="space-y-2">
-                          <h4 className="font-medium text-white">Smart Role Analysis</h4>
-                          <p className="text-sm text-gray-400">Auto-fix and optimize server roles</p>
+                          <div className="flex items-center space-x-2">
+                            <Shield className="w-4 h-4 text-primary" />
+                            <h4 className="font-medium text-foreground">Smart Role Analysis</h4>
+                          </div>
+                          <p className="text-sm text-muted-foreground">Auto-fix and optimize server roles</p>
                         </div>
                       </div>
                     </div>
@@ -44,11 +100,14 @@ const Landing = () => {
 
             <div className="flex items-center space-x-4">
               <Link to="/auth">
-                <Button variant="ghost" className="text-gray-300 hover:text-white">Login</Button>
+                <Button variant="ghost" className="text-muted-foreground hover:text-foreground focus-ring">
+                  Login
+                </Button>
               </Link>
               <Link to="/auth">
-                <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                <Button className="gradient-primary text-white shadow-lg btn-hover focus-ring">
                   Get Started
+                  <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </Link>
             </div>
@@ -56,172 +115,153 @@ const Landing = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="py-20 px-4">
-        <div className="container mx-auto text-center">
-          <Badge className="mb-4 bg-purple-900/50 text-purple-200 hover:bg-purple-900/50 border-purple-700">
-            <Sparkles className="w-3 h-3 mr-1" />
-            AI-Powered Discord Server Builder
-          </Badge>
-          <h1 className="text-5xl font-bold text-white mb-6 max-w-4xl mx-auto">
-            Build Discord Servers in
-            <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent"> Seconds with AI</span>
-          </h1>
-          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            BuildForMe uses advanced AI to create fully customized Discord servers instantly. 
-            From custom themes to optimized role structures - we build it all for you.
-          </p>
-          <div className="flex items-center justify-center space-x-4">
-            <Link to="/auth">
-              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-                Add to Discord
-                <ArrowRight className="ml-2 w-4 h-4" />
+      {/* Enhanced Hero Section */}
+      <section className="py-24 px-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5"></div>
+        <div className="container mx-auto text-center relative">
+          <div className="animate-fade-in-up">
+            <Badge className="mb-6 bg-primary/10 text-primary hover:bg-primary/20 border-primary/20 px-4 py-2">
+              <Sparkles className="w-4 h-4 mr-2" />
+              AI-Powered Discord Server Builder
+            </Badge>
+            <h1 className="text-6xl md:text-7xl font-bold text-foreground mb-8 max-w-5xl mx-auto leading-tight">
+              Build Discord Servers in
+              <span className="gradient-primary bg-clip-text text-transparent block mt-2">
+                Seconds with AI
+              </span>
+            </h1>
+            <p className="text-xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
+              BuildForMe uses advanced AI to create fully customized Discord servers instantly. 
+              From custom themes to optimized role structures - we build it all for you.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
+              <a 
+                href="https://discord.com/oauth2/authorize?client_id=1391912825534025879"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto"
+              >
+                <Button size="lg" className="gradient-primary text-white shadow-xl btn-hover focus-ring w-full sm:w-auto">
+                  Add to Discord
+                  <ArrowUpRight className="ml-2 w-5 h-5" />
+                </Button>
+              </a>
+              <Button size="lg" variant="outline" className="border-muted-foreground/20 text-muted-foreground hover:bg-muted hover:text-foreground btn-hover focus-ring w-full sm:w-auto">
+                Watch Demo
               </Button>
-            </Link>
-            <Button size="lg" variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800">
-              Watch Demo
-            </Button>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section className="py-20 px-4 bg-gray-900">
+      {/* Enhanced Features Grid */}
+      <section className="py-24 px-4 bg-gradient-to-b from-transparent to-secondary/20">
         <div className="container mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-white mb-4">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl font-bold text-foreground mb-6">
               Revolutionary AI Server Building
             </h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
               Experience the future of Discord server creation with our intelligent automation
             </p>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="border-gray-700 bg-gray-800 hover:bg-gray-750 transition-colors">
-              <CardHeader>
-                <div className="w-12 h-12 bg-purple-900/50 rounded-lg flex items-center justify-center mb-4">
-                  <Zap className="w-6 h-6 text-purple-400" />
-                </div>
-                <CardTitle className="text-white">Lightning Fast Setup</CardTitle>
-                <CardDescription className="text-gray-400">
-                  Complete server setup in seconds, not hours. Our AI handles everything instantly.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="border-gray-700 bg-gray-800 hover:bg-gray-750 transition-colors">
-              <CardHeader>
-                <div className="w-12 h-12 bg-blue-900/50 rounded-lg flex items-center justify-center mb-4">
-                  <Sparkles className="w-6 h-6 text-blue-400" />
-                </div>
-                <CardTitle className="text-white">Custom AI Themes</CardTitle>
-                <CardDescription className="text-gray-400">
-                  Generate unique server themes tailored to your community's personality and needs.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="border-gray-700 bg-gray-800 hover:bg-gray-750 transition-colors">
-              <CardHeader>
-                <div className="w-12 h-12 bg-green-900/50 rounded-lg flex items-center justify-center mb-4">
-                  <Shield className="w-6 h-6 text-green-400" />
-                </div>
-                <CardTitle className="text-white">Smart Role Analysis</CardTitle>
-                <CardDescription className="text-gray-400">
-                  AI analyzes and optimizes your server roles, fixing permissions and structure automatically.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="border-gray-700 bg-gray-800 hover:bg-gray-750 transition-colors">
-              <CardHeader>
-                <div className="w-12 h-12 bg-yellow-900/50 rounded-lg flex items-center justify-center mb-4">
-                  <Settings className="w-6 h-6 text-yellow-400" />
-                </div>
-                <CardTitle className="text-white">Complete Automation</CardTitle>
-                <CardDescription className="text-gray-400">
-                  From channels to permissions, categories to bots - everything configured perfectly.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="border-gray-700 bg-gray-800 hover:bg-gray-750 transition-colors">
-              <CardHeader>
-                <div className="w-12 h-12 bg-red-900/50 rounded-lg flex items-center justify-center mb-4">
-                  <Users className="w-6 h-6 text-red-400" />
-                </div>
-                <CardTitle className="text-white">Community Optimized</CardTitle>
-                <CardDescription className="text-gray-400">
-                  AI understands your community type and builds the perfect server structure.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card className="border-gray-700 bg-gray-800 hover:bg-gray-750 transition-colors">
-              <CardHeader>
-                <div className="w-12 h-12 bg-indigo-900/50 rounded-lg flex items-center justify-center mb-4">
-                  <Crown className="w-6 h-6 text-indigo-400" />
-                </div>
-                <CardTitle className="text-white">Premium Features</CardTitle>
-                <CardDescription className="text-gray-400">
-                  Advanced AI capabilities, priority support, and unlimited server builds.
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            {features.map((feature, index) => (
+              <Card key={feature.title} className="border-border/50 bg-card/50 backdrop-blur-sm card-hover animate-scale-in" style={{animationDelay: `${index * 0.1}s`}}>
+                <CardHeader className="pb-4">
+                  <div className={`w-14 h-14 bg-gradient-to-r ${feature.color} rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
+                    <feature.icon className="w-7 h-7 text-white" />
+                  </div>
+                  <CardTitle className="text-foreground text-xl">{feature.title}</CardTitle>
+                  <CardDescription className="text-muted-foreground leading-relaxed">
+                    {feature.description}
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-4 bg-gradient-to-r from-purple-900/50 to-blue-900/50">
-        <div className="container mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">
-            Ready to Build Your Perfect Server?
-          </h2>
-          <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
-            Join thousands of communities using BuildForMe to create amazing Discord servers in seconds.
-          </p>
-          <Link to="/auth">
-            <Button size="lg" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
-              Start Building Now
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </Button>
-          </Link>
+      {/* New Benefits Section */}
+      <section className="py-24 px-4">
+        <div className="container mx-auto">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl font-bold text-foreground mb-6">
+                Everything You Need for $15/month
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                Get access to all premium features with a simple subscription
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div className="space-y-6">
+                {benefits.map((benefit, index) => (
+                  <div key={benefit} className="flex items-center space-x-4 animate-fade-in-up" style={{animationDelay: `${index * 0.1}s`}}>
+                    <div className="w-6 h-6 gradient-primary rounded-full flex items-center justify-center flex-shrink-0">
+                      <CheckCircle className="w-4 h-4 text-white" />
+                    </div>
+                    <span className="text-foreground font-medium">{benefit}</span>
+                  </div>
+                ))}
+              </div>
+
+              <Card className="border-border/50 bg-card/50 backdrop-blur-sm p-8">
+                <div className="text-center">
+                  <div className="w-20 h-20 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl">
+                    <Bot className="w-10 h-10 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-foreground mb-4">Ready to Start?</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Join thousands of communities using BuildForMe to create amazing Discord servers.
+                  </p>
+                  <Link to="/auth">
+                    <Button className="gradient-primary text-white shadow-lg btn-hover focus-ring w-full">
+                      Start Building Now
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </Card>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-black text-white py-12 px-4 border-t border-gray-800">
+      {/* Enhanced Footer */}
+      <footer className="bg-secondary/20 text-foreground py-16 px-4 border-t border-border/50">
         <div className="container mx-auto">
-          <div className="grid md:grid-cols-3 gap-8">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-                  <Bot className="w-5 h-5 text-white" />
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div className="md:col-span-2">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center">
+                  <Bot className="w-6 h-6 text-white" />
                 </div>
                 <span className="font-bold text-xl">BuildForMe</span>
               </div>
-              <p className="text-gray-400">
+              <p className="text-muted-foreground leading-relaxed max-w-md">
                 The AI-powered Discord server builder that creates perfect communities in seconds.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <div className="space-y-2">
-                <Link to="/auth" className="text-gray-400 hover:text-white block">Features</Link>
-                <Link to="/auth" className="text-gray-400 hover:text-white block">Pricing</Link>
+              <h4 className="font-semibold mb-4 text-foreground">Product</h4>
+              <div className="space-y-3">
+                <Link to="/auth" className="text-muted-foreground hover:text-foreground block transition-colors">Features</Link>
+                <Link to="/auth" className="text-muted-foreground hover:text-foreground block transition-colors">Pricing</Link>
               </div>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <div className="space-y-2">
-                <a href="#" className="text-gray-400 hover:text-white block">Help Center</a>
-                <a href="#" className="text-gray-400 hover:text-white block">Contact Us</a>
+              <h4 className="font-semibold mb-4 text-foreground">Support</h4>
+              <div className="space-y-3">
+                <a href="#" className="text-muted-foreground hover:text-foreground block transition-colors">Help Center</a>
+                <a href="#" className="text-muted-foreground hover:text-foreground block transition-colors">Contact Us</a>
               </div>
             </div>
           </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+          <div className="border-t border-border/50 pt-8 text-center text-muted-foreground">
             <p>&copy; 2024 BuildForMe. All rights reserved.</p>
           </div>
         </div>
