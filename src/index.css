@@ -3,80 +3,80 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Modern design system with improved accessibility and visual hierarchy */
+/* Modern purple theme with Discord-inspired design */
 
 @layer base {
   :root {
-    /* Enhanced dark theme with better contrast ratios for accessibility */
-    --background: 15 23% 8%;
+    /* Modern purple theme with excellent contrast */
+    --background: 220 13% 9%;
     --foreground: 210 40% 98%;
 
-    --card: 15 23% 8%;
+    --card: 220 13% 9%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 15 23% 8%;
+    --popover: 220 13% 9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 217 91% 60%;
+    --primary: 262 83% 58%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 215 28% 17%;
+    --secondary: 220 13% 15%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 215 28% 17%;
-    --muted-foreground: 217 11% 65%;
+    --muted: 220 13% 15%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 215 28% 17%;
+    --accent: 220 13% 15%;
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 215 28% 17%;
-    --input: 215 28% 17%;
-    --ring: 217 91% 60%;
+    --border: 220 13% 15%;
+    --input: 220 13% 15%;
+    --ring: 262 83% 58%;
 
     --radius: 0.75rem;
 
     /* Enhanced sidebar colors */
-    --sidebar-background: 15 23% 8%;
+    --sidebar-background: 220 13% 9%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary: 262 83% 58%;
     --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 215 28% 17%;
+    --sidebar-accent: 220 13% 15%;
     --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 215 28% 17%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-border: 220 13% 15%;
+    --sidebar-ring: 262 83% 58%;
   }
 
   .dark {
-    --background: 15 23% 8%;
+    --background: 220 13% 9%;
     --foreground: 210 40% 98%;
-    --card: 15 23% 8%;
+    --card: 220 13% 9%;
     --card-foreground: 210 40% 98%;
-    --popover: 15 23% 8%;
+    --popover: 220 13% 9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 217 91% 60%;
+    --primary: 262 83% 58%;
     --primary-foreground: 210 40% 98%;
-    --secondary: 215 28% 17%;
+    --secondary: 220 13% 15%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 215 28% 17%;
-    --muted-foreground: 217 11% 65%;
-    --accent: 215 28% 17%;
+    --muted: 220 13% 15%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 220 13% 15%;
     --accent-foreground: 210 40% 98%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
-    --border: 215 28% 17%;
-    --input: 215 28% 17%;
-    --ring: 217 91% 60%;
-    --sidebar-background: 15 23% 8%;
+    --border: 220 13% 15%;
+    --input: 220 13% 15%;
+    --ring: 262 83% 58%;
+    --sidebar-background: 220 13% 9%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary: 262 83% 58%;
     --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 215 28% 17%;
+    --sidebar-accent: 220 13% 15%;
     --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 215 28% 17%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-border: 220 13% 15%;
+    --sidebar-ring: 262 83% 58%;
   }
 }
 
@@ -88,7 +88,7 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+    background: linear-gradient(135deg, hsl(220 13% 9%) 0%, hsl(220 13% 12%) 50%, hsl(262 83% 12%) 100%);
     min-height: 100vh;
   }
 }
@@ -104,31 +104,31 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-800;
+  @apply bg-muted;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-600 rounded-full;
+  @apply bg-primary/50 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-500;
+  @apply bg-primary/70;
 }
 
-/* Custom gradient backgrounds with better accessibility */
+/* Custom gradient backgrounds */
 .gradient-primary {
-  background: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(217 91% 70%) 100%);
+  background: linear-gradient(135deg, hsl(262 83% 58%) 0%, hsl(262 83% 68%) 100%);
 }
 
 .gradient-secondary {
-  background: linear-gradient(135deg, hsl(215 28% 17%) 0%, hsl(215 28% 25%) 100%);
+  background: linear-gradient(135deg, hsl(220 13% 15%) 0%, hsl(220 13% 20%) 100%);
 }
 
-/* Glass morphism effect with better contrast */
+/* Glass morphism effect */
 .glass {
   backdrop-filter: blur(12px);
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(71, 85, 105, 0.3);
+  background: rgba(17, 24, 39, 0.8);
+  border: 1px solid rgba(139, 92, 246, 0.2);
 }
 
 /* Enhanced animations */
@@ -175,7 +175,7 @@ html {
   background: linear-gradient(
     90deg,
     transparent,
-    hsla(217, 91%, 60%, 0.1),
+    hsla(262, 83%, 58%, 0.1),
     transparent
   );
   background-size: 200px 100%;
@@ -184,31 +184,31 @@ html {
 
 /* Focus styles for accessibility */
 .focus-ring {
-  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800;
+  @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background;
 }
 
-/* Button hover effects with better accessibility */
+/* Button hover effects */
 .btn-hover {
-  @apply transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  @apply transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-primary focus:ring-offset-2;
 }
 
 /* Card hover effects */
 .card-hover {
-  @apply transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-1;
+  @apply transition-all duration-300 ease-in-out hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1;
 }
 
 /* Better contrast for interactive elements */
 .interactive-element {
-  @apply transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800;
+  @apply transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background;
 }
 
-/* Improved text readability */
-.text-primary-accessible {
-  color: hsl(217 91% 70%);
+/* Discord-style accent colors */
+.discord-primary {
+  background: hsl(235 86% 65%);
 }
 
-.text-secondary-accessible {
-  color: hsl(217 91% 85%);
+.discord-secondary {
+  background: hsl(139 47% 47%);
 }
 
 /* High contrast mode support */
@@ -216,7 +216,7 @@ html {
   :root {
     --foreground: 0 0% 100%;
     --background: 0 0% 0%;
-    --primary: 217 100% 70%;
+    --primary: 262 100% 70%;
     --border: 0 0% 50%;
   }
 }

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
-import { ArrowRight, Shield, Zap, Users, Settings, Crown, Star, Bot, Sparkles, CheckCircle } from "lucide-react";
+import { ArrowRight, Shield, Zap, Users, Settings, Crown, Star, Bot, Sparkles, CheckCircle, MessageSquare, Server } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Landing = () => {
@@ -11,53 +11,53 @@ const Landing = () => {
     {
       icon: Zap,
       title: "Lightning Fast Setup",
-      description: "Complete server setup in seconds, not hours. Our AI handles everything instantly.",
-      color: "from-yellow-500 to-orange-500"
+      description: "Complete Discord server setup in seconds with AI automation.",
+      color: "from-purple-500 to-violet-500"
     },
     {
       icon: Sparkles,
-      title: "Custom AI Themes",
-      description: "Generate unique server themes tailored to your community's personality and needs.",
-      color: "from-purple-500 to-pink-500"
+      title: "Smart AI Builder",
+      description: "AI analyzes your needs and builds the perfect server structure.",
+      color: "from-blue-500 to-purple-500"
     },
     {
       icon: Shield,
-      title: "Smart Role Analysis",
-      description: "AI analyzes and optimizes your server roles, fixing permissions and structure automatically.",
+      title: "Advanced Moderation",
+      description: "Built-in moderation tools and auto-role management systems.",
       color: "from-green-500 to-emerald-500"
     },
     {
       icon: Settings,
       title: "Complete Automation",
-      description: "From channels to permissions, categories to bots - everything configured perfectly.",
-      color: "from-blue-500 to-cyan-500"
+      description: "Channels, permissions, bots - everything configured perfectly.",
+      color: "from-orange-500 to-red-500"
     },
     {
       icon: Users,
-      title: "Community Optimized",
-      description: "AI understands your community type and builds the perfect server structure.",
-      color: "from-red-500 to-rose-500"
+      title: "Community Focused",
+      description: "Optimized for gaming, business, education, and social communities.",
+      color: "from-pink-500 to-rose-500"
     },
     {
       icon: Crown,
       title: "Premium Features",
-      description: "Advanced AI capabilities, priority support, and unlimited server builds.",
+      description: "Advanced customization, priority support, and unlimited builds.",
       color: "from-indigo-500 to-purple-500"
     }
   ];
 
   const benefits = [
-    "AI server building in seconds",
-    "Custom themes and layouts",
+    "AI-powered server building",
+    "Custom themes and layouts", 
     "Smart role optimization",
     "Unlimited server builds",
-    "Priority support",
-    "Advanced customization"
+    "24/7 priority support",
+    "Advanced bot integration"
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary">
-      {/* Enhanced Header */}
+    <div className="min-h-screen bg-background">
+      {/* Modern Header */}
       <header className="sticky top-0 z-50 glass border-b border-border/50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -79,17 +79,17 @@ const Landing = () => {
                       <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
                           <div className="flex items-center space-x-2">
-                            <Sparkles className="w-4 h-4 text-primary" />
-                            <h4 className="font-medium text-foreground">AI Server Builder</h4>
+                            <Server className="w-4 h-4 text-primary" />
+                            <h4 className="font-medium text-foreground">Server Builder</h4>
                           </div>
-                          <p className="text-sm text-muted-foreground">Build complete servers in seconds</p>
+                          <p className="text-sm text-muted-foreground">Build complete Discord servers instantly</p>
                         </div>
                         <div className="space-y-2">
                           <div className="flex items-center space-x-2">
-                            <Shield className="w-4 h-4 text-primary" />
-                            <h4 className="font-medium text-foreground">Smart Role Analysis</h4>
+                            <MessageSquare className="w-4 h-4 text-primary" />
+                            <h4 className="font-medium text-foreground">Smart Moderation</h4>
                           </div>
-                          <p className="text-sm text-muted-foreground">Auto-fix and optimize server roles</p>
+                          <p className="text-sm text-muted-foreground">AI-powered moderation and management</p>
                         </div>
                       </div>
                     </div>
@@ -115,7 +115,7 @@ const Landing = () => {
         </div>
       </header>
 
-      {/* Enhanced Hero Section */}
+      {/* Hero Section */}
       <section className="py-24 px-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5"></div>
         <div className="container mx-auto text-center relative">
@@ -125,23 +125,23 @@ const Landing = () => {
               AI-Powered Discord Server Builder
             </Badge>
             <h1 className="text-6xl md:text-7xl font-bold text-foreground mb-8 max-w-5xl mx-auto leading-tight">
-              Build Discord Servers in
+              Build Perfect Discord Servers
               <span className="gradient-primary bg-clip-text text-transparent block mt-2">
-                Seconds with AI
+                in Seconds with AI
               </span>
             </h1>
             <p className="text-xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
               BuildForMe uses advanced AI to create fully customized Discord servers instantly. 
-              From custom themes to optimized role structures - we build it all for you.
+              From gaming communities to business teams - we build it all for you.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-md mx-auto">
               <Link to="/auth" className="w-full sm:w-auto">
                 <Button size="lg" className="gradient-primary text-white shadow-xl btn-hover focus-ring w-full sm:w-auto">
-                  Subscribe to Get Started
+                  Start Building Now
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="border-muted-foreground/20 text-muted-foreground hover:bg-muted hover:text-foreground btn-hover focus-ring w-full sm:w-auto">
+              <Button size="lg" variant="outline" className="border-border text-muted-foreground hover:bg-muted hover:text-foreground btn-hover focus-ring w-full sm:w-auto">
                 Watch Demo
               </Button>
             </div>
@@ -149,21 +149,21 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Enhanced Features Grid */}
-      <section className="py-24 px-4 bg-gradient-to-b from-transparent to-secondary/20">
+      {/* Features Grid */}
+      <section className="py-24 px-4 bg-secondary/20">
         <div className="container mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-4xl font-bold text-foreground mb-6">
-              Revolutionary AI Server Building
+              Revolutionary Discord Bot Platform
             </h2>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-              Experience the future of Discord server creation with our intelligent automation
+              Experience the future of Discord server creation with intelligent automation
             </p>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <Card key={feature.title} className="border-border/50 bg-card/50 backdrop-blur-sm card-hover animate-scale-in" style={{animationDelay: `${index * 0.1}s`}}>
+              <Card key={feature.title} className="border-border bg-card/50 backdrop-blur-sm card-hover animate-scale-in" style={{animationDelay: `${index * 0.1}s`}}>
                 <CardHeader className="pb-4">
                   <div className={`w-14 h-14 bg-gradient-to-r ${feature.color} rounded-xl flex items-center justify-center mb-4 shadow-lg`}>
                     <feature.icon className="w-7 h-7 text-white" />
@@ -179,7 +179,7 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* New Benefits Section */}
+      {/* Pricing Section */}
       <section className="py-24 px-4">
         <div className="container mx-auto">
           <div className="max-w-4xl mx-auto">
@@ -204,7 +204,7 @@ const Landing = () => {
                 ))}
               </div>
 
-              <Card className="border-border/50 bg-card/50 backdrop-blur-sm p-8">
+              <Card className="border-border bg-card/50 backdrop-blur-sm p-8">
                 <div className="text-center">
                   <div className="w-20 h-20 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl">
                     <Bot className="w-10 h-10 text-white" />
@@ -226,7 +226,7 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Enhanced Footer */}
+      {/* Footer */}
       <footer className="bg-secondary/20 text-foreground py-16 px-4 border-t border-border/50">
         <div className="container mx-auto">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
