@@ -31,8 +31,7 @@ import {
   Bot, 
   LogOut,
   User,
-  Bell,
-  Sparkles
+  Bell
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -88,9 +87,9 @@ const DashboardLayout = () => {
   const menuItems = [
     { title: "Overview", url: "/dashboard", icon: Home, color: "text-blue-400" },
     { title: "Servers", url: "/dashboard/servers", icon: Users, color: "text-green-400" },
-    { title: "AI Builder", url: "/dashboard/builder", icon: Sparkles, color: "text-purple-400" },
     { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3, color: "text-orange-400" },
     { title: "Billing", url: "/dashboard/billing", icon: CreditCard, color: "text-yellow-400" },
+    { title: "Profile", url: "/dashboard/profile", icon: User, color: "text-purple-400" },
     { title: "Settings", url: "/dashboard/settings", icon: Settings, color: "text-gray-400" },
   ];
 
