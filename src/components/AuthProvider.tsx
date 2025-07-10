@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, debugAuth } from '@/integrations/supabase/client';
 import { useProfileSync } from '@/hooks/useProfileSync';
 
 interface AuthContextType {
@@ -31,22 +31,29 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('🔐 AuthProvider: Setting up auth state listener');
+    debugAuth.log('🔐 AuthProvider: Setting up auth state listener');
 
     // Get initial session
     const getInitialSession = async () => {
       try {
+        debugAuth.log('Checking for initial session...');
         const { data: { session: initialSession }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('Error getting initial session:', error);
+          debugAuth.error('Error getting initial session', error);
         } else {
-          console.log('📱 Initial session check:', initialSession ? 'Found session' : 'No session');
+          debugAuth.log('📱 Initial session check', initialSession ? {
+            userId: initialSession.user.id,
+            email: initialSession.user.email,
+            provider: initialSession.user.app_metadata?.provider,
+            discordId: initialSession.user.user_metadata?.provider_id
+          } : 'No session found');
+          
           setSession(initialSession);
           setUser(initialSession?.user ?? null);
         }
       } catch (error) {
-        console.error('Error in getInitialSession:', error);
+        debugAuth.error('Error in getInitialSession', error);
       } finally {
         setLoading(false);
       }
@@ -55,7 +62,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
-        console.log('🔄 Auth state change:', event, newSession ? 'Session exists' : 'No session');
+        debugAuth.log('🔄 Auth state change', {
+          event,
+          hasSession: !!newSession,
+          userId: newSession?.user?.id,
+          email: newSession?.user?.email,
+          provider: newSession?.user?.app_metadata?.provider,
+          discordMetadata: newSession?.user?.user_metadata
+        });
         
         setSession(newSession);
         setUser(newSession?.user ?? null);
@@ -63,12 +77,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         // Handle different auth events
         if (event === 'SIGNED_IN' && newSession?.user) {
-          console.log('✅ User signed in:', newSession.user.email);
-          console.log('🎮 Discord metadata:', newSession.user.user_metadata);
+          debugAuth.success('✅ User signed in', {
+            email: newSession.user.email,
+            provider: newSession.user.app_metadata?.provider,
+            discordId: newSession.user.user_metadata?.provider_id,
+            discordUsername: newSession.user.user_metadata?.user_name
+          });
         } else if (event === 'SIGNED_OUT') {
-          console.log('👋 User signed out');
+          debugAuth.log('👋 User signed out');
         } else if (event === 'TOKEN_REFRESHED') {
-          console.log('🔄 Token refreshed');
+          debugAuth.log('🔄 Token refreshed');
         }
       }
     );
@@ -76,17 +94,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     getInitialSession();
 
     return () => {
-      console.log('🧹 Cleaning up auth subscription');
+      debugAuth.log('🧹 Cleaning up auth subscription');
       subscription.unsubscribe();
     };
   }, []);
 
   const signOut = async () => {
-    console.log('👋 Signing out user');
+    debugAuth.log('👋 Signing out user');
     const result = await supabase.auth.signOut();
     if (!result.error) {
       setUser(null);
       setSession(null);
+      debugAuth.success('Sign out successful');
+    } else {
+      debugAuth.error('Sign out error', result.error);
     }
     return result;
   };
@@ -107,8 +128,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   );
 };
 
-// Wrapper component to handle profile syncing
+// Wrapper component to handle profile syncing with debugging
 const AuthSyncWrapper = ({ children }: { children: React.ReactNode }) => {
-  useProfileSync();
+  const syncStatus = useProfileSync();
+  
+  // Log sync status for debugging
+  useEffect(() => {
+    if (syncStatus.userId) {
+      debugAuth.log('Sync status update', syncStatus);
+    }
+  }, [syncStatus]);
+
   return <>{children}</>;
 };

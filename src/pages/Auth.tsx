@@ -7,7 +7,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthRedirect } from "@/hooks/useAuthRedirect";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, debugAuth } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Auth = () => {
@@ -22,17 +22,17 @@ const Auth = () => {
   useAuthRedirect({ user, loading: authLoading });
 
   useEffect(() => {
-    console.log('🔧 Auth page mounted');
-    console.log('📍 Current URL:', window.location.href);
-    console.log('🔗 Search params:', Object.fromEntries(searchParams.entries()));
-    console.log('🔗 Hash fragment:', window.location.hash);
+    debugAuth.log('🔧 Auth page mounted');
+    debugAuth.log('📍 Current URL', window.location.href);
+    debugAuth.log('🔗 Search params', Object.fromEntries(searchParams.entries()));
+    debugAuth.log('🔗 Hash fragment', window.location.hash);
 
     // Check for OAuth errors in URL parameters
     const error = searchParams.get('error');
     const errorDescription = searchParams.get('error_description');
     
     if (error) {
-      console.log('❌ OAuth error detected:', error, errorDescription);
+      debugAuth.error('❌ OAuth error detected', { error, errorDescription });
       
       let errorMessage = 'Authentication failed. Please try again.';
       
@@ -54,7 +54,7 @@ const Auth = () => {
     // Check for OAuth callback tokens in URL fragment
     const fragment = window.location.hash;
     if (fragment && (fragment.includes('access_token') || fragment.includes('refresh_token'))) {
-      console.log('🔄 OAuth callback detected, processing tokens...');
+      debugAuth.log('🔄 OAuth callback detected, processing tokens...');
       setProcessingCallback(true);
       
       // Clean up the URL fragment immediately to prevent reprocessing
@@ -69,17 +69,17 @@ const Auth = () => {
     if (!error && !fragment) {
       const checkExistingSession = async () => {
         try {
-          console.log('🔍 Checking for existing authenticated session...');
+          debugAuth.log('🔍 Checking for existing authenticated session...');
           const { data: { session } } = await supabase.auth.getSession();
           if (session?.user) {
-            console.log('✅ User already authenticated:', session.user.email);
-            console.log('🔄 Redirecting to dashboard...');
+            debugAuth.success('✅ User already authenticated', session.user.email);
+            debugAuth.log('🔄 Redirecting to dashboard...');
             window.location.href = '/dashboard';
           } else {
-            console.log('❌ No existing session found');
+            debugAuth.log('❌ No existing session found');
           }
         } catch (error) {
-          console.error('⚠️ Error checking existing session:', error);
+          debugAuth.error('⚠️ Error checking existing session', error);
         }
       };
       
@@ -90,25 +90,29 @@ const Auth = () => {
   const handleDiscordLogin = async () => {
     try {
       setLoading(true);
-      console.log('🚀 Starting Discord OAuth flow...');
+      debugAuth.log('🚀 Starting Discord OAuth flow...');
       
       // Clear any existing auth state first
       try {
-        console.log('🧹 Clearing existing auth state...');
+        debugAuth.log('🧹 Clearing existing auth state...');
         await supabase.auth.signOut();
         
         // Clear localStorage
         Object.keys(localStorage).forEach((key) => {
           if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+            debugAuth.log('Removing localStorage key', key);
             localStorage.removeItem(key);
           }
         });
       } catch (err) {
-        console.log('⚠️ Error during pre-auth cleanup:', err);
+        debugAuth.log('⚠️ Error during pre-auth cleanup', err);
         // Continue even if cleanup fails
       }
 
-      console.log('🔗 Initiating Discord OAuth with redirect to:', `${window.location.origin}/auth`);
+      debugAuth.log('🔗 Initiating Discord OAuth', {
+        redirectTo: `${window.location.origin}/auth`,
+        currentUrl: window.location.href
+      });
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'discord',
@@ -119,14 +123,14 @@ const Auth = () => {
       });
       
       if (error) {
-        console.error('❌ OAuth initiation error:', error);
+        debugAuth.error('❌ OAuth initiation error', error);
         throw error;
       }
       
-      console.log('✅ OAuth initiation successful, redirecting to Discord...');
+      debugAuth.success('✅ OAuth initiation successful, redirecting to Discord...');
       // Browser will redirect to Discord, no need for additional logic
     } catch (error: any) {
-      console.error('💥 Discord login error:', error);
+      debugAuth.error('💥 Discord login error', error);
       
       let errorMessage = error.message || 'Failed to connect to Discord. Please try again.';
       

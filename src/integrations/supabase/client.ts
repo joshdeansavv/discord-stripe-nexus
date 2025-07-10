@@ -19,7 +19,20 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   },
   global: {
     headers: {
-      'X-Client-Info': 'buildfor-me-auth'
+      'X-Client-Info': 'buildfor-me-auth-v2'
     }
   }
 });
+
+// Debug logging utility
+export const debugAuth = {
+  log: (message: string, data?: any) => {
+    console.log(`🔍 [AUTH DEBUG] ${message}`, data || '');
+  },
+  error: (message: string, error?: any) => {
+    console.error(`❌ [AUTH ERROR] ${message}`, error || '');
+  },
+  success: (message: string, data?: any) => {
+    console.log(`✅ [AUTH SUCCESS] ${message}`, data || '');
+  }
+};
