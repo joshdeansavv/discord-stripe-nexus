@@ -125,22 +125,76 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_locked_until: string | null
           created_at: string | null
           email: string
+          failed_login_attempts: number | null
           id: string
+          last_failed_login: string | null
+          last_password_change: string | null
+          security_flags: Json | null
           updated_at: string | null
         }
         Insert: {
+          account_locked_until?: string | null
           created_at?: string | null
           email: string
+          failed_login_attempts?: number | null
           id: string
+          last_failed_login?: string | null
+          last_password_change?: string | null
+          security_flags?: Json | null
           updated_at?: string | null
         }
         Update: {
+          account_locked_until?: string | null
           created_at?: string | null
           email?: string
+          failed_login_attempts?: number | null
           id?: string
+          last_failed_login?: string | null
+          last_password_change?: string | null
+          security_flags?: Json | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      security_audit_logs: {
+        Row: {
+          created_at: string | null
+          event_details: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          metadata: Json | null
+          risk_level: string | null
+          session_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_details?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          risk_level?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_details?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          risk_level?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -198,6 +252,8 @@ export type Database = {
           discord_username: string | null
           email: string
           id: string
+          last_verification: string | null
+          security_notes: Json | null
           stripe_customer_id: string | null
           subscription_end: string | null
           subscription_start: string | null
@@ -214,6 +270,8 @@ export type Database = {
           discord_username?: string | null
           email: string
           id?: string
+          last_verification?: string | null
+          security_notes?: Json | null
           stripe_customer_id?: string | null
           subscription_end?: string | null
           subscription_start?: string | null
@@ -230,6 +288,8 @@ export type Database = {
           discord_username?: string | null
           email?: string
           id?: string
+          last_verification?: string | null
+          security_notes?: Json | null
           stripe_customer_id?: string | null
           subscription_end?: string | null
           subscription_start?: string | null
@@ -247,9 +307,33 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_account_security: {
+        Args: { p_user_id: string }
+        Returns: Json
+      }
+      cleanup_security_logs: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      log_security_event: {
+        Args: {
+          p_user_id: string
+          p_event_type: string
+          p_event_details?: Json
+          p_ip_address?: unknown
+          p_user_agent?: string
+          p_session_id?: string
+          p_risk_level?: string
+        }
+        Returns: string
+      }
       reset_monthly_usage: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      validate_server_access: {
+        Args: { p_server_id: string; p_user_id: string }
+        Returns: boolean
       }
     }
     Enums: {

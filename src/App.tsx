@@ -7,7 +7,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/components/AuthProvider";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ConnectionStatus } from "@/components/ConnectionStatus";
-import { AuthDebugPanel } from "@/components/debug/AuthDebugPanel";
+import { SecurityMonitor } from "@/components/SecurityMonitor";
+import { SecurityAuditLog } from "@/components/security/SecurityAuditLog";
+import { useSecurityHeaders } from "@/hooks/useSecurityHeaders";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/dashboard/Dashboard";
@@ -37,15 +39,19 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <ConnectionStatus />
-          <AuthDebugPanel />
+const App = () => {
+  useSecurityHeaders();
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <ConnectionStatus />
+            <SecurityMonitor />
+            <SecurityAuditLog />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
@@ -65,10 +71,11 @@ const App = () => (
               <Route path="settings" element={<Settings />} />
             </Route>
           </Routes>
-        </TooltipProvider>
-      </AuthProvider>
-    </BrowserRouter>
-  </QueryClientProvider>
-);
+          </TooltipProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
