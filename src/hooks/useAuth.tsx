@@ -48,12 +48,27 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           
           // Check if we're on auth page and redirect to dashboard
           if (window.location.pathname === '/auth') {
+            // Clean up URL fragment if it exists
+            if (window.location.hash) {
+              window.history.replaceState({}, document.title, '/auth');
+            }
             window.location.href = '/dashboard';
           }
         } else if (event === 'SIGNED_OUT') {
           setSession(null);
           setUser(null);
           console.log('👋 User signed out');
+          
+          // Clean up any auth tokens in localStorage
+          try {
+            Object.keys(localStorage).forEach((key) => {
+              if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+                localStorage.removeItem(key);
+              }
+            });
+          } catch (error) {
+            console.log('Error cleaning localStorage:', error);
+          }
         } else if (event === 'TOKEN_REFRESHED' && session) {
           setSession(session);
           setUser(session.user);
@@ -115,6 +130,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setLoading(true);
       console.log('🚪 Signing out...');
+      
+      // Clean up auth tokens first
+      try {
+        Object.keys(localStorage).forEach((key) => {
+          if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+            localStorage.removeItem(key);
+          }
+        });
+      } catch (error) {
+        console.log('Error cleaning localStorage during signout:', error);
+      }
       
       const { error } = await supabase.auth.signOut();
       

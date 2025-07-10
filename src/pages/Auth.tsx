@@ -39,6 +39,31 @@ const Auth = () => {
       window.history.replaceState({}, document.title, '/auth');
     }
 
+    // Check for OAuth callback tokens in URL fragment
+    const fragment = window.location.hash;
+    if (fragment && fragment.includes('access_token')) {
+      console.log('OAuth callback detected, processing tokens...');
+      setLoading(true);
+      
+      // Let Supabase handle the OAuth callback
+      supabase.auth.getSession().then(({ data: { session }, error }) => {
+        if (error) {
+          console.error('Session error:', error);
+          toast({
+            title: "Authentication Error",
+            description: "Failed to process authentication. Please try again.",
+            variant: "destructive",
+          });
+        } else if (session) {
+          console.log('✅ OAuth session established');
+          navigate("/dashboard");
+        }
+        setLoading(false);
+      });
+      
+      return;
+    }
+
     // Check if user is already logged in
     const checkUser = async () => {
       try {
@@ -51,7 +76,7 @@ const Auth = () => {
       }
     };
     
-    if (!error) {
+    if (!error && !fragment) {
       checkUser();
     }
   }, [navigate, searchParams, toast]);
@@ -73,7 +98,7 @@ const Auth = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'discord',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${window.location.origin}/auth`,
           skipBrowserRedirect: false
         }
       });
