@@ -45,21 +45,35 @@ const Auth = () => {
       console.log('OAuth callback detected, processing tokens...');
       setLoading(true);
       
-      // Let Supabase handle the OAuth callback
-      supabase.auth.getSession().then(({ data: { session }, error }) => {
-        if (error) {
-          console.error('Session error:', error);
+      // Clean up the URL fragment immediately
+      window.history.replaceState({}, document.title, '/auth');
+      
+      // Let Supabase handle the OAuth callback with a slight delay
+      setTimeout(async () => {
+        try {
+          const { data: { session }, error } = await supabase.auth.getSession();
+          if (error) {
+            console.error('Session error:', error);
+            toast({
+              title: "Authentication Error",
+              description: "Failed to process authentication. Please try again.",
+              variant: "destructive",
+            });
+          } else if (session) {
+            console.log('✅ OAuth session established');
+            // The auth state change will handle the redirect
+          }
+        } catch (error) {
+          console.error('Error processing OAuth callback:', error);
           toast({
             title: "Authentication Error",
             description: "Failed to process authentication. Please try again.",
             variant: "destructive",
           });
-        } else if (session) {
-          console.log('✅ OAuth session established');
-          navigate("/dashboard");
+        } finally {
+          setLoading(false);
         }
-        setLoading(false);
-      });
+      }, 100);
       
       return;
     }

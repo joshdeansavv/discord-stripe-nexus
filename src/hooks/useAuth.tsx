@@ -46,13 +46,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           setUser(session.user);
           console.log('✅ User signed in successfully');
           
-          // Check if we're on auth page and redirect to dashboard
+          // Clean redirect after successful sign in
           if (window.location.pathname === '/auth') {
-            // Clean up URL fragment if it exists
-            if (window.location.hash) {
-              window.history.replaceState({}, document.title, '/auth');
-            }
-            window.location.href = '/dashboard';
+            console.log('Redirecting to dashboard...');
+            window.location.replace('/dashboard');
           }
         } else if (event === 'SIGNED_OUT') {
           setSession(null);
@@ -88,7 +85,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         if (error) {
           console.error('Error getting session:', error);
-          // Don't show toast for network errors during initialization
           if (!error.message?.includes('fetch') && !error.message?.includes('network')) {
             toast({
               title: "Authentication Error",
@@ -103,7 +99,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
       } catch (error) {
         console.error('Failed to initialize auth:', error);
-        // Only show error if it's not a network issue
         if (error instanceof Error && !error.message.includes('fetch') && !error.message.includes('network')) {
           toast({
             title: "Connection Error",
@@ -161,7 +156,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
       
       // Redirect to home page
-      window.location.href = '/';
+      window.location.replace('/');
     } catch (error: any) {
       console.error('Error during sign out:', error);
       
