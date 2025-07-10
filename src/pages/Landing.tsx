@@ -145,9 +145,6 @@ const Landing = () => {
                   <ArrowRight className="ml-3 w-5 h-5" />
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="border-border/50 text-muted-foreground hover:bg-muted/50 hover:text-foreground btn-hover focus-ring w-full sm:w-auto h-14 px-8 text-lg">
-                Watch Demo
-              </Button>
             </div>
           </div>
         </div>
@@ -191,7 +188,7 @@ const Landing = () => {
               Simple Pricing
             </h2>
             <p className="text-xl text-muted-foreground font-medium">
-              Everything you need for $15/month
+              Everything you need for $20/month
             </p>
           </div>
 

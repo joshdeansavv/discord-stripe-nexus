@@ -51,7 +51,7 @@ serve(async (req) => {
           price_data: {
             currency: "usd",
             product_data: { name: "BuildForMe Pro Subscription" },
-            unit_amount: 1500, // $15.00
+            unit_amount: 2000, // $20.00
             recurring: { interval: "month" },
           },
           quantity: 1,

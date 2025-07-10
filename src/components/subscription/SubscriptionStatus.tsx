@@ -70,7 +70,7 @@ const SubscriptionStatus = () => {
           {!isActive ? (
             <Button onClick={createCheckout} className="w-full">
               <CreditCard className="w-4 h-4 mr-2" />
-              Subscribe Now - $15/month
+              Subscribe Now - $20/month
             </Button>
           ) : (
             <Button onClick={openCustomerPortal} variant="outline" className="w-full">

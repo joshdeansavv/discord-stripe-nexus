@@ -76,7 +76,7 @@ const Dashboard = () => {
           <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl animate-pulse">
             <Bot className="w-8 h-8 text-white" />
           </div>
-          <div className="text-foreground">Verifying subscription...</div>
+          <div className="text-white">Verifying subscription...</div>
         </div>
       </div>
     );
@@ -90,8 +90,8 @@ const Dashboard = () => {
           <div className="w-20 h-20 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl">
             <Bot className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-foreground mb-4">Welcome to BuildForMe AI</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <h1 className="text-4xl font-bold text-white mb-4">Welcome to BuildForMe AI</h1>
+          <p className="text-lg text-gray-300 max-w-2xl mx-auto">
             Subscribe to unlock AI-powered Discord server building capabilities
           </p>
         </div>
@@ -108,12 +108,12 @@ const Dashboard = () => {
           
           <Card className="bg-card/50 border-border/50 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-foreground flex items-center">
+              <CardTitle className="text-white flex items-center">
                 <Sparkles className="w-5 h-5 mr-2 text-primary" />
                 What You Get
               </CardTitle>
-              <CardDescription className="text-muted-foreground">
-                AI-powered Discord server building for $15/month
+              <CardDescription className="text-gray-300">
+                AI-powered Discord server building for $20/month
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -126,7 +126,7 @@ const Dashboard = () => {
                 ].map((item, index) => (
                   <div key={index} className="flex items-center space-x-3 p-3 rounded-lg bg-muted/20 border border-border/30">
                     <item.icon className={`w-5 h-5 ${item.color}`} />
-                    <span className="text-foreground font-medium">{item.text}</span>
+                    <span className="text-white font-medium">{item.text}</span>
                   </div>
                 ))}
               </div>
@@ -143,8 +143,8 @@ const Dashboard = () => {
       {/* Welcome Section */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-bold text-foreground mb-2">Welcome back!</h1>
-          <p className="text-lg text-muted-foreground">Ready to build amazing Discord servers with AI?</p>
+          <h1 className="text-4xl font-bold text-white mb-2">Welcome back!</h1>
+          <p className="text-lg text-gray-300">Ready to build amazing Discord servers with AI?</p>
         </div>
         <div className="flex gap-3">
           <a 
@@ -198,14 +198,14 @@ const Dashboard = () => {
         ].map((stat, index) => (
           <Card key={stat.title} className="bg-card/50 border-border/50 backdrop-blur-sm card-hover">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-300">{stat.title}</CardTitle>
               <div className={`w-10 h-10 bg-gradient-to-r ${stat.color} rounded-lg flex items-center justify-center shadow-lg`}>
                 <stat.icon className="h-5 w-5 text-white" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-foreground mb-1">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">{stat.description}</p>
+              <div className="text-3xl font-bold text-white mb-1">{stat.value}</div>
+              <p className="text-xs text-gray-300">{stat.description}</p>
             </CardContent>
           </Card>
         ))}
@@ -215,11 +215,11 @@ const Dashboard = () => {
         {/* Enhanced AI Server Builder */}
         <Card className="lg:col-span-2 bg-card/50 border-border/50 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-foreground flex items-center text-xl">
+            <CardTitle className="text-white flex items-center text-xl">
               <Sparkles className="w-6 h-6 mr-3 text-primary" />
               AI Server Builder
             </CardTitle>
-            <CardDescription className="text-muted-foreground text-base">
+            <CardDescription className="text-gray-300 text-base">
               Build custom Discord servers in seconds with advanced AI
             </CardDescription>
           </CardHeader>
@@ -228,8 +228,8 @@ const Dashboard = () => {
               <div className="w-20 h-20 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl">
                 <Bot className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-3">Ready to create your next server?</h3>
-              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              <h3 className="text-xl font-semibold text-white mb-3">Ready to create your next server?</h3>
+              <p className="text-gray-300 mb-6 max-w-md mx-auto">
                 Use our AI to generate complete Discord servers with custom themes, optimized roles, and perfect channel structures.
               </p>
               <a 
@@ -249,16 +249,16 @@ const Dashboard = () => {
         {/* Enhanced Recent Activity */}
         <Card className="bg-card/50 border-border/50 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-foreground flex items-center">
+            <CardTitle className="text-white flex items-center">
               <Activity className="w-5 h-5 mr-2 text-primary" />
               Recent Activity
             </CardTitle>
-            <CardDescription className="text-muted-foreground">Latest AI builds and optimizations</CardDescription>
+            <CardDescription className="text-gray-300">Latest AI builds and optimizations</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-8 text-gray-300">
               <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-30" />
-              <p className="text-foreground font-medium mb-2">No recent activity</p>
+              <p className="text-white font-medium mb-2">No recent activity</p>
               <p className="text-sm">Start building servers to see activity here</p>
             </div>
           </CardContent>
@@ -268,8 +268,8 @@ const Dashboard = () => {
       {/* Enhanced Quick Actions */}
       <Card className="bg-card/50 border-border/50 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle className="text-foreground text-xl">Quick Actions</CardTitle>
-          <CardDescription className="text-muted-foreground">Common AI server building tasks</CardDescription>
+          <CardTitle className="text-white text-xl">Quick Actions</CardTitle>
+          <CardDescription className="text-gray-300">Common AI server building tasks</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -281,7 +281,7 @@ const Dashboard = () => {
               <Button 
                 key={action.title}
                 variant="outline" 
-                className="h-24 flex-col space-y-3 border-border/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground card-hover focus-ring"
+                className="h-24 flex-col space-y-3 border-border/30 text-gray-300 hover:bg-muted/50 hover:text-white card-hover focus-ring"
               >
                 <div className={`w-8 h-8 bg-gradient-to-r ${action.color} rounded-lg flex items-center justify-center shadow-lg`}>
                   <action.icon className="w-5 h-5 text-white" />
