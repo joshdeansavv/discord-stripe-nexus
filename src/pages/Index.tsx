@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { AuthTest } from "@/components/AuthTest";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -312,6 +313,13 @@ const Index = () => {
               <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
           </Link>
+        </div>
+      </section>
+
+      {/* Auth Debug Section - Only for testing */}
+      <section className="py-12 px-4 bg-muted/10">
+        <div className="container">
+          <AuthTest />
         </div>
       </section>
 

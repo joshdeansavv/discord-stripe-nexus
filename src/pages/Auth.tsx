@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Shield, ArrowLeft, AlertCircle, RefreshCw } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -14,6 +16,10 @@ const Auth = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { user, loading: authLoading } = useAuth();
+  
+  // Handle auth redirects
+  useAuthRedirect({ user, loading: authLoading });
 
   useEffect(() => {
     console.log('🔧 Auth page mounted');
@@ -54,46 +60,8 @@ const Auth = () => {
       // Clean up the URL fragment immediately to prevent reprocessing
       window.history.replaceState({}, document.title, '/auth');
       
-      // Let Supabase handle the OAuth callback
-      const processCallback = async () => {
-        try {
-          console.log('🔍 Getting session after OAuth callback...');
-          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-          
-          if (sessionError) {
-            console.error('❌ Session error after callback:', sessionError);
-            toast({
-              title: "Authentication Error",
-              description: "Failed to complete authentication. Please try again.",
-              variant: "destructive",
-            });
-          } else if (session?.user) {
-            console.log('✅ OAuth session established for:', session.user.email);
-            console.log('🔄 Redirecting to dashboard...');
-            // The auth state change listener will handle the redirect
-            navigate('/dashboard');
-          } else {
-            console.log('⚠️ No session after OAuth callback');
-            toast({
-              title: "Authentication Error",
-              description: "Authentication completed but no session was created. Please try again.",
-              variant: "destructive",
-            });
-          }
-        } catch (error) {
-          console.error('💥 Error processing OAuth callback:', error);
-          toast({
-            title: "Authentication Error",
-            description: "Failed to complete authentication. Please try again.",
-            variant: "destructive",
-          });
-        } finally {
-          setProcessingCallback(false);
-        }
-      };
-
-      // Small delay to ensure URL cleanup
-      setTimeout(processCallback, 100);
+      // Let the auth state listener handle the rest - no manual redirect needed
+      setProcessingCallback(false);
       return;
     }
 
@@ -106,7 +74,7 @@ const Auth = () => {
           if (session?.user) {
             console.log('✅ User already authenticated:', session.user.email);
             console.log('🔄 Redirecting to dashboard...');
-            navigate("/dashboard");
+            window.location.href = '/dashboard';
           } else {
             console.log('❌ No existing session found');
           }
@@ -156,6 +124,7 @@ const Auth = () => {
       }
       
       console.log('✅ OAuth initiation successful, redirecting to Discord...');
+      // Browser will redirect to Discord, no need for additional logic
     } catch (error: any) {
       console.error('💥 Discord login error:', error);
       

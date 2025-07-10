@@ -35,9 +35,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     let mounted = true;
     console.log('🔧 AuthProvider initializing...');
 
-    // Set up auth state listener FIRST
+    // Set up auth state listener FIRST - no async operations inside
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         if (!mounted) {
           console.log('⚠️ Component unmounted, ignoring auth event:', event);
           return;
@@ -45,44 +45,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         console.log('🔄 Auth state change:', event, session?.user?.email || 'No user');
         
-        // Update state immediately for all events
+        // Update state immediately - synchronous only
         setSession(session);
         setUser(session?.user ?? null);
+        setLoading(false);
         
-        if (event === 'SIGNED_IN' && session) {
-          console.log('✅ User signed in successfully:', session.user.email);
-          
-          // Handle redirect after successful sign in
-          const currentPath = window.location.pathname;
-          console.log('📍 Current path after sign in:', currentPath);
-          
-          if (currentPath === '/auth' || currentPath === '/') {
-            console.log('🔄 Redirecting to dashboard...');
-            setTimeout(() => {
-              window.location.replace('/dashboard');
-            }, 100);
-          }
-        } else if (event === 'SIGNED_OUT') {
+        if (event === 'SIGNED_OUT') {
           console.log('👋 User signed out');
-          
-          // Clean up auth tokens
-          try {
-            Object.keys(localStorage).forEach((key) => {
-              if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
-                localStorage.removeItem(key);
-              }
-            });
-            console.log('🧹 Auth tokens cleaned up');
-          } catch (error) {
-            console.log('⚠️ Error cleaning localStorage:', error);
-          }
-        } else if (event === 'TOKEN_REFRESHED' && session) {
-          console.log('🔄 Token refreshed for:', session.user.email);
-        }
-        
-        // Set loading to false after handling auth events
-        if (mounted) {
-          setLoading(false);
+          // Clean up will be handled by signOut function
         }
       }
     );
@@ -151,16 +121,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         console.log('⚠️ Error cleaning localStorage during signout:', error);
       }
       
+      // Clear state immediately
+      setSession(null);
+      setUser(null);
+      
       const { error } = await supabase.auth.signOut();
       
       if (error) {
         console.error('❌ Sign out error:', error);
-        throw error;
       }
-      
-      // Clear state immediately
-      setSession(null);
-      setUser(null);
       
       console.log('✅ Signed out successfully');
       
@@ -169,13 +138,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         description: "You've been successfully signed out.",
       });
       
-      // Redirect to home page
+      // Force page reload to ensure clean state
       console.log('🔄 Redirecting to home...');
-      window.location.replace(window.location.origin);
+      window.location.href = '/';
     } catch (error: any) {
       console.error('💥 Error during sign out:', error);
       
-      // Even if signout fails, clear local state
+      // Even if signout fails, clear local state and redirect
       setSession(null);
       setUser(null);
       
@@ -184,6 +153,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         description: error.message || "There was an issue signing you out.",
         variant: "destructive",
       });
+      
+      // Force redirect anyway
+      window.location.href = '/';
     } finally {
       setLoading(false);
     }
