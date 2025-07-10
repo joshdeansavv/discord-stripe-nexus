@@ -6,22 +6,8 @@ import { useProfileSync } from '@/hooks/useProfileSync';
 import { validateAuthState, secureSignOut } from '@/utils/authHelpers';
 import { secureLog, sanitizeError } from '@/utils/security';
 
-interface AuthContextType {
-  user: User | null;
-  session: Session | null;
-  loading: boolean;
-  signOut: () => Promise<{ error: AuthError | null }>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+// Import AuthContextType and AuthContext from the separate context file
+import { AuthContext, AuthContextType } from '@/contexts/AuthContext';
 
 interface AuthProviderProps {
   children: React.ReactNode;
