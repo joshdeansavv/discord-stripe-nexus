@@ -155,8 +155,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         description: "You've been successfully signed out.",
       });
       
-      // Redirect to home page
-      window.location.replace('/');
+      // Redirect to home page using current origin
+      window.location.replace(window.location.origin);
     } catch (error: any) {
       console.error('Error during sign out:', error);
       
