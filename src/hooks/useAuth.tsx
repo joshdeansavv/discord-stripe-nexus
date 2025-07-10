@@ -15,7 +15,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
@@ -45,6 +45,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           setSession(session);
           setUser(session.user);
           console.log('✅ User signed in successfully');
+          
+          // Check if we're on auth page and redirect to dashboard
+          if (window.location.pathname === '/auth') {
+            window.location.href = '/dashboard';
+          }
         } else if (event === 'SIGNED_OUT') {
           setSession(null);
           setUser(null);
@@ -128,6 +133,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         title: "Signed out",
         description: "You've been successfully signed out.",
       });
+      
+      // Redirect to home page
+      window.location.href = '/';
     } catch (error: any) {
       console.error('Error during sign out:', error);
       
