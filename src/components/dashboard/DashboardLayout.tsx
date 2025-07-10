@@ -137,7 +137,7 @@ const DashboardLayout = () => {
                             `flex items-center space-x-3 px-4 py-3 rounded-xl mx-2 transition-all duration-200 focus-ring ${
                               isActive 
                                 ? "bg-primary/10 text-primary font-medium border border-primary/20 shadow-sm" 
-                                : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                                : "text-white hover:bg-muted/50 hover:text-foreground"
                             }`
                           }
                         >
