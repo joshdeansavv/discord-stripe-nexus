@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { validateSessionSecurity, secureLog, sanitizeError } from '@/utils/security';
 
 interface SecurityCheck {
   isAuthenticated: boolean;
@@ -25,7 +26,7 @@ export const useAuthSecurity = () => {
       const { data: { session }, error } = await supabase.auth.getSession();
       
       if (error) {
-        console.error('Auth security check error:', error);
+        secureLog('error', 'Auth security check error', sanitizeError(error));
         toast({
           title: 'Security Check Failed',
           description: 'Please sign in again for security verification.',
@@ -40,6 +41,30 @@ export const useAuthSecurity = () => {
           hasValidSession: false,
           sessionExpiry: null,
           securityLevel: 'low'
+        });
+        return;
+      }
+
+      // Enhanced security validation
+      const securityValidation = validateSessionSecurity(session);
+      
+      if (!securityValidation.isValid) {
+        secureLog('warn', 'Session security issues detected', {
+          issues: securityValidation.issues,
+          userId: session.user.id
+        });
+        
+        setSecurityCheck({
+          isAuthenticated: false,
+          hasValidSession: false,
+          sessionExpiry: null,
+          securityLevel: 'low'
+        });
+        
+        toast({
+          title: 'Session Security Issue',
+          description: securityValidation.issues.join(', '),
+          variant: 'destructive',
         });
         return;
       }
@@ -63,6 +88,21 @@ export const useAuthSecurity = () => {
         securityLevel = 'medium';
       }
 
+      // Additional security checks
+      const lastActivity = localStorage.getItem('last_activity');
+      const maxInactivity = 2 * 60 * 60 * 1000; // 2 hours
+      
+      if (lastActivity && (Date.now() - parseInt(lastActivity)) > maxInactivity) {
+        securityLevel = 'low';
+        secureLog('warn', 'Session inactive for too long', {
+          userId: session.user.id,
+          lastActivity: new Date(parseInt(lastActivity)).toISOString()
+        });
+      }
+
+      // Update last activity
+      localStorage.setItem('last_activity', Date.now().toString());
+
       setSecurityCheck({
         isAuthenticated: true,
         hasValidSession: timeToExpiry > 0,
@@ -70,8 +110,15 @@ export const useAuthSecurity = () => {
         securityLevel
       });
 
+      // Log security check completion
+      secureLog('info', 'Security check completed', {
+        userId: session.user.id,
+        securityLevel,
+        expiresAt: expiryTime.toISOString()
+      });
+
     } catch (error) {
-      console.error('Security check failed:', error);
+      secureLog('error', 'Security check failed', sanitizeError(error));
       setSecurityCheck({
         isAuthenticated: false,
         hasValidSession: false,
@@ -85,16 +132,20 @@ export const useAuthSecurity = () => {
 
   const refreshSession = async () => {
     try {
+      secureLog('info', 'Attempting session refresh');
+      
       const { error } = await supabase.auth.refreshSession();
       if (error) throw error;
       
       await performSecurityCheck();
+      
+      secureLog('info', 'Session refresh successful');
       toast({
         title: 'Session Refreshed',
         description: 'Your session has been successfully refreshed.',
       });
     } catch (error) {
-      console.error('Session refresh failed:', error);
+      secureLog('error', 'Session refresh failed', sanitizeError(error));
       toast({
         title: 'Refresh Failed',
         description: 'Failed to refresh session. Please sign in again.',

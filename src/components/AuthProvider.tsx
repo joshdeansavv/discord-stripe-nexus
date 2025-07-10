@@ -3,6 +3,8 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase, debugAuth } from '@/integrations/supabase/client';
 import { useProfileSync } from '@/hooks/useProfileSync';
+import { validateAuthState, secureSignOut } from '@/utils/authHelpers';
+import { secureLog, sanitizeError } from '@/utils/security';
 
 interface AuthContextType {
   user: User | null;
@@ -75,18 +77,39 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setUser(newSession?.user ?? null);
         setLoading(false);
 
-        // Handle different auth events
+        // Handle different auth events with security validation
         if (event === 'SIGNED_IN' && newSession?.user) {
+          // Validate auth state security
+          const authValidation = validateAuthState(newSession, newSession.user);
+          
+          if (!authValidation.isValid) {
+            secureLog('warn', 'Auth state validation failed on sign in', {
+              issues: authValidation.issues,
+              userId: newSession.user.id
+            });
+            // Force sign out if validation fails
+            setTimeout(() => secureSignOut(supabase), 0);
+            return;
+          }
+          
           debugAuth.success('✅ User signed in', {
             email: newSession.user.email,
             provider: newSession.user.app_metadata?.provider,
             discordId: newSession.user.user_metadata?.provider_id,
             discordUsername: newSession.user.user_metadata?.user_name
           });
+          
+          secureLog('info', 'User authenticated successfully', {
+            userId: newSession.user.id,
+            provider: newSession.user.app_metadata?.provider
+          });
+          
         } else if (event === 'SIGNED_OUT') {
           debugAuth.log('👋 User signed out');
+          secureLog('info', 'User signed out');
         } else if (event === 'TOKEN_REFRESHED') {
           debugAuth.log('🔄 Token refreshed');
+          secureLog('info', 'Auth token refreshed');
         }
       }
     );
@@ -101,7 +124,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signOut = async () => {
     debugAuth.log('👋 Signing out user');
-    const result = await supabase.auth.signOut();
+    secureLog('info', 'User initiated sign out', { userId: user?.id });
+    
+    const result = await secureSignOut(supabase);
+    
     if (!result.error) {
       setUser(null);
       setSession(null);
