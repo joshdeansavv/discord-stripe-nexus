@@ -1,139 +1,94 @@
-import { useState, useEffect, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { AuthContext } from '@/contexts/AuthContext';
-import { cleanupAuthTokens } from '@/utils/authHelpers';
+import { useProfileSync } from '@/hooks/useProfileSync';
+
+interface AuthContextType {
+  user: User | null;
+  session: Session | null;
+  loading: boolean;
+  signOut: () => Promise<{ error: AuthError | null }>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
 
 interface AuthProviderProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
 
   useEffect(() => {
-    let mounted = true;
-    console.log('🔧 AuthProvider initializing...');
+    console.log('🔐 AuthProvider: Setting up auth state listener');
 
-    // Set up auth state listener FIRST - no async operations inside
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (!mounted) {
-          console.log('⚠️ Component unmounted, ignoring auth event:', event);
-          return;
+    // Get initial session
+    const getInitialSession = async () => {
+      try {
+        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting initial session:', error);
+        } else {
+          console.log('📱 Initial session check:', initialSession ? 'Found session' : 'No session');
+          setSession(initialSession);
+          setUser(initialSession?.user ?? null);
         }
-        
-        console.log('🔄 Auth state change:', event, session?.user?.email || 'No user');
-        
-        // Update state immediately - synchronous only
-        setSession(session);
-        setUser(session?.user ?? null);
+      } catch (error) {
+        console.error('Error in getInitialSession:', error);
+      } finally {
         setLoading(false);
+      }
+    };
+
+    // Set up auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, newSession) => {
+        console.log('🔄 Auth state change:', event, newSession ? 'Session exists' : 'No session');
         
-        if (event === 'SIGNED_OUT') {
+        setSession(newSession);
+        setUser(newSession?.user ?? null);
+        setLoading(false);
+
+        // Handle different auth events
+        if (event === 'SIGNED_IN' && newSession?.user) {
+          console.log('✅ User signed in:', newSession.user.email);
+          console.log('🎮 Discord metadata:', newSession.user.user_metadata);
+        } else if (event === 'SIGNED_OUT') {
           console.log('👋 User signed out');
-          // Clean up will be handled by signOut function
+        } else if (event === 'TOKEN_REFRESHED') {
+          console.log('🔄 Token refreshed');
         }
       }
     );
 
-    // Then check for existing session
-    const initializeAuth = async () => {
-      try {
-        console.log('🔍 Checking for existing session...');
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('❌ Error getting session:', error);
-          if (!error.message?.includes('fetch') && !error.message?.includes('network')) {
-            toast({
-              title: "Authentication Error",
-              description: "There was an issue checking your login status.",
-              variant: "destructive",
-            });
-          }
-        } else if (mounted) {
-          console.log('📊 Initial session check:', session ? `✅ Found session for ${session.user.email}` : '❌ No session');
-          setSession(session);
-          setUser(session?.user ?? null);
-        }
-      } catch (error) {
-        console.error('💥 Failed to initialize auth:', error);
-        if (error instanceof Error && !error.message.includes('fetch') && !error.message.includes('network')) {
-          toast({
-            title: "Connection Error",
-            description: "Unable to verify authentication status. Please refresh the page.",
-            variant: "destructive",
-          });
-        }
-      } finally {
-        if (mounted) {
-          console.log('✅ Auth initialization complete');
-          setLoading(false);
-        }
-      }
-    };
-
-    // Initialize auth state
-    initializeAuth();
+    getInitialSession();
 
     return () => {
-      console.log('🧹 AuthProvider cleanup');
-      mounted = false;
+      console.log('🧹 Cleaning up auth subscription');
       subscription.unsubscribe();
     };
-  }, [toast]);
+  }, []);
 
   const signOut = async () => {
-    try {
-      setLoading(true);
-      console.log('🚪 Signing out...');
-      
-      // Clean up auth tokens first
-      cleanupAuthTokens();
-      
-      // Clear state immediately
-      setSession(null);
+    console.log('👋 Signing out user');
+    const result = await supabase.auth.signOut();
+    if (!result.error) {
       setUser(null);
-      
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        console.error('❌ Sign out error:', error);
-      }
-      
-      console.log('✅ Signed out successfully');
-      
-      toast({
-        title: "Signed out",
-        description: "You've been successfully signed out.",
-      });
-      
-      // Force page reload to ensure clean state
-      console.log('🔄 Redirecting to home...');
-      window.location.href = '/';
-    } catch (error: any) {
-      console.error('💥 Error during sign out:', error);
-      
-      // Even if signout fails, clear local state and redirect
       setSession(null);
-      setUser(null);
-      
-      toast({
-        title: "Sign out error",
-        description: error.message || "There was an issue signing you out.",
-        variant: "destructive",
-      });
-      
-      // Force redirect anyway
-      window.location.href = '/';
-    } finally {
-      setLoading(false);
     }
+    return result;
   };
 
   const value = {
@@ -143,16 +98,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     signOut,
   };
 
-  console.log('🎯 AuthProvider rendering with:', { 
-    hasUser: !!user, 
-    hasSession: !!session, 
-    loading,
-    userEmail: user?.email || 'None'
-  });
-
   return (
     <AuthContext.Provider value={value}>
-      {children}
+      <AuthSyncWrapper>
+        {children}
+      </AuthSyncWrapper>
     </AuthContext.Provider>
   );
+};
+
+// Wrapper component to handle profile syncing
+const AuthSyncWrapper = ({ children }: { children: React.ReactNode }) => {
+  useProfileSync();
+  return <>{children}</>;
 };

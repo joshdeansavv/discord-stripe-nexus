@@ -1,11 +1,10 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Plus, Server, Users, Activity, Trash2, ExternalLink, Bot, Shield, AlertTriangle } from 'lucide-react';
+import { Plus, Server, Users, Activity, Trash2, ExternalLink, Bot, Shield, AlertTriangle, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -28,6 +27,7 @@ const Servers = () => {
   const [serverName, setServerName] = useState('');
   const [inviteUrl, setInviteUrl] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   const { securityCheck, refreshSession } = useAuthSecurity();
@@ -73,7 +73,17 @@ const Servers = () => {
       });
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchServers();
+    toast({
+      title: 'Refreshed',
+      description: 'Server data has been refreshed.',
+    });
   };
 
   useEffect(() => {
@@ -245,14 +255,26 @@ const Servers = () => {
             Manage Discord servers where your bot is active or can be added
           </p>
         </div>
-        <Button 
-          onClick={() => setShowForm(true)} 
-          className="gap-2"
-          disabled={!securityCheck.hasValidSession}
-        >
-          <Plus className="w-4 h-4" />
-          Register Server
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={handleRefresh}
+            disabled={refreshing}
+            variant="outline"
+            size="sm"
+            className="gap-2"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          <Button 
+            onClick={() => setShowForm(true)} 
+            className="gap-2"
+            disabled={!securityCheck.hasValidSession}
+          >
+            <Plus className="w-4 h-4" />
+            Register Server
+          </Button>
+        </div>
       </div>
 
       {showForm && (

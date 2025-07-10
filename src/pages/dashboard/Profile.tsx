@@ -6,16 +6,93 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { User, Mail, Calendar, ExternalLink } from "lucide-react";
+import { User, Mail, Calendar, ExternalLink, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { format } from "date-fns";
 
+interface ProfileData {
+  id: string;
+  email: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface SubscriberData {
+  id: string;
+  discord_user_id: string | null;
+  discord_username: string | null;
+  subscription_status: string;
+  subscription_tier: string;
+  created_at: string;
+}
+
 const Profile = () => {
   const [updating, setUpdating] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [subscriberData, setSubscriberData] = useState<SubscriberData | null>(null);
   const { toast } = useToast();
   const { user, loading } = useAuth();
+
+  const fetchProfileData = async () => {
+    if (!user) return;
+
+    try {
+      console.log('📊 Fetching profile data for user:', user.id);
+      
+      // Fetch profile data
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error('Profile fetch error:', profileError);
+      } else {
+        console.log('Profile data:', profile);
+        setProfileData(profile);
+      }
+
+      // Fetch subscriber data
+      const { data: subscriber, error: subscriberError } = await supabase
+        .from('subscribers')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (subscriberError) {
+        console.error('Subscriber fetch error:', subscriberError);
+      } else {
+        console.log('Subscriber data:', subscriber);
+        setSubscriberData(subscriber);
+      }
+
+    } catch (error) {
+      console.error('Error fetching profile data:', error);
+    }
+  };
+
+  const handleRefreshProfile = async () => {
+    setRefreshing(true);
+    try {
+      await fetchProfileData();
+      toast({
+        title: "Profile refreshed",
+        description: "Profile data has been refreshed successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to refresh profile data.",
+        variant: "destructive",
+      });
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const handleUpdateProfile = async () => {
     try {
@@ -35,6 +112,12 @@ const Profile = () => {
       setUpdating(false);
     }
   };
+
+  useEffect(() => {
+    if (user && !loading) {
+      fetchProfileData();
+    }
+  }, [user, loading]);
 
   if (loading) {
     return (
@@ -63,8 +146,22 @@ const Profile = () => {
   return (
     <div className="space-y-8 p-6">
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold text-foreground">Profile Settings</h1>
-        <p className="text-muted-foreground">Manage your account information and preferences</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Profile Settings</h1>
+            <p className="text-muted-foreground">Manage your account information and preferences</p>
+          </div>
+          <Button
+            onClick={handleRefreshProfile}
+            disabled={refreshing}
+            variant="outline"
+            size="sm"
+            className="gap-2"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -79,12 +176,12 @@ const Profile = () => {
               </Avatar>
             </div>
             <CardTitle className="text-foreground">
-              {user.user_metadata?.full_name || user.user_metadata?.user_name || "User"}
+              {subscriberData?.discord_username || user.user_metadata?.full_name || user.user_metadata?.user_name || "User"}
             </CardTitle>
             <CardDescription className="flex items-center justify-center">
-              <Badge variant="outline" className="flex items-center space-x-1">
+              <Badge variant={subscriberData?.subscription_status === 'active' ? 'default' : 'outline'} className="flex items-center space-x-1">
                 <ExternalLink className="w-3 h-3" />
-                <span>Discord Account</span>
+                <span>{subscriberData?.subscription_status || 'Pending'}</span>
               </Badge>
             </CardDescription>
           </CardHeader>
@@ -110,7 +207,7 @@ const Profile = () => {
                 <Input
                   id="email"
                   type="email"
-                  value={user.email || ''}
+                  value={profileData?.email || user.email || ''}
                   disabled
                   className="bg-muted/50"
                 />
@@ -123,7 +220,33 @@ const Profile = () => {
                 </Label>
                 <Input
                   id="username"
-                  value={user.user_metadata?.user_name || 'Not available'}
+                  value={subscriberData?.discord_username || user.user_metadata?.user_name || 'Not available'}
+                  disabled
+                  className="bg-muted/50"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="discord-id" className="flex items-center">
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Discord ID
+                </Label>
+                <Input
+                  id="discord-id"
+                  value={subscriberData?.discord_user_id || user.user_metadata?.provider_id || 'Not available'}
+                  disabled
+                  className="bg-muted/50"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="tier" className="flex items-center">
+                  <Badge className="w-4 h-4 mr-2" />
+                  Subscription Tier
+                </Label>
+                <Input
+                  id="tier"
+                  value={subscriberData?.subscription_tier || 'Basic'}
                   disabled
                   className="bg-muted/50"
                 />
@@ -136,7 +259,7 @@ const Profile = () => {
                 </Label>
                 <Input
                   id="created"
-                  value={user.created_at ? format(new Date(user.created_at), 'MMM dd, yyyy') : 'Unknown'}
+                  value={profileData?.created_at ? format(new Date(profileData.created_at), 'MMM dd, yyyy') : 'Unknown'}
                   disabled
                   className="bg-muted/50"
                 />
@@ -155,6 +278,20 @@ const Profile = () => {
                 />
               </div>
             </div>
+
+            {/* Debug Info Card */}
+            <Card className="bg-muted/20">
+              <CardHeader>
+                <CardTitle className="text-sm">Debug Information</CardTitle>
+              </CardHeader>
+              <CardContent className="text-xs space-y-2">
+                <div>Profile ID: {profileData?.id || 'Not found'}</div>
+                <div>Subscriber ID: {subscriberData?.id || 'Not found'}</div>
+                <div>Auth User ID: {user.id}</div>
+                <div>Profile in DB: {profileData ? '✅ Yes' : '❌ No'}</div>
+                <div>Subscriber in DB: {subscriberData ? '✅ Yes' : '❌ No'}</div>
+              </CardContent>
+            </Card>
 
             <div className="pt-4 border-t border-border/50">
               <Button 
