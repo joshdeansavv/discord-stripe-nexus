@@ -18,8 +18,11 @@ import { useAuth } from "@/hooks/useAuth";
 const Index = () => {
   const { user, loading } = useAuth();
 
+  console.log('🏠 Index component rendering with:', { hasUser: !!user, loading });
+
   // Show loading spinner while auth is initializing
   if (loading) {
+    console.log('⏳ Index showing loading state');
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -29,6 +32,8 @@ const Index = () => {
       </div>
     );
   }
+
+  console.log('✅ Index rendering main content');
 
   return (
     <div className="min-h-screen bg-background">

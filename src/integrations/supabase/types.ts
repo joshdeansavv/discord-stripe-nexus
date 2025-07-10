@@ -247,10 +247,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      increment_usage: {
-        Args: { server_id: string; amount: number }
-        Returns: undefined
-      }
       reset_monthly_usage: {
         Args: Record<PropertyKey, never>
         Returns: undefined

@@ -10,18 +10,23 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
-  const [retrying, setRetrying] = useState(false);
+  const [processingCallback, setProcessingCallback] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    // Check for OAuth errors in URL
+    console.log('🔧 Auth page mounted');
+    console.log('📍 Current URL:', window.location.href);
+    console.log('🔗 Search params:', Object.fromEntries(searchParams.entries()));
+    console.log('🔗 Hash fragment:', window.location.hash);
+
+    // Check for OAuth errors in URL parameters
     const error = searchParams.get('error');
     const errorDescription = searchParams.get('error_description');
     
     if (error) {
-      console.log('OAuth error detected:', error, errorDescription);
+      console.log('❌ OAuth error detected:', error, errorDescription);
       
       let errorMessage = 'Authentication failed. Please try again.';
       
@@ -35,79 +40,107 @@ const Auth = () => {
         variant: "destructive",
       });
       
-      // Clean up URL by replacing current state
+      // Clean up URL
       window.history.replaceState({}, document.title, '/auth');
+      return;
     }
 
     // Check for OAuth callback tokens in URL fragment
     const fragment = window.location.hash;
-    if (fragment && fragment.includes('access_token')) {
-      console.log('OAuth callback detected, processing tokens...');
-      setLoading(true);
+    if (fragment && (fragment.includes('access_token') || fragment.includes('refresh_token'))) {
+      console.log('🔄 OAuth callback detected, processing tokens...');
+      setProcessingCallback(true);
       
-      // Clean up the URL fragment immediately
+      // Clean up the URL fragment immediately to prevent reprocessing
       window.history.replaceState({}, document.title, '/auth');
       
-      // Let Supabase handle the OAuth callback with a slight delay
-      setTimeout(async () => {
+      // Let Supabase handle the OAuth callback
+      const processCallback = async () => {
         try {
-          const { data: { session }, error } = await supabase.auth.getSession();
-          if (error) {
-            console.error('Session error:', error);
+          console.log('🔍 Getting session after OAuth callback...');
+          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+          
+          if (sessionError) {
+            console.error('❌ Session error after callback:', sessionError);
             toast({
               title: "Authentication Error",
-              description: "Failed to process authentication. Please try again.",
+              description: "Failed to complete authentication. Please try again.",
               variant: "destructive",
             });
-          } else if (session) {
-            console.log('✅ OAuth session established');
-            // The auth state change will handle the redirect
+          } else if (session?.user) {
+            console.log('✅ OAuth session established for:', session.user.email);
+            console.log('🔄 Redirecting to dashboard...');
+            // The auth state change listener will handle the redirect
+            navigate('/dashboard');
+          } else {
+            console.log('⚠️ No session after OAuth callback');
+            toast({
+              title: "Authentication Error",
+              description: "Authentication completed but no session was created. Please try again.",
+              variant: "destructive",
+            });
           }
         } catch (error) {
-          console.error('Error processing OAuth callback:', error);
+          console.error('💥 Error processing OAuth callback:', error);
           toast({
             title: "Authentication Error",
-            description: "Failed to process authentication. Please try again.",
+            description: "Failed to complete authentication. Please try again.",
             variant: "destructive",
           });
         } finally {
-          setLoading(false);
+          setProcessingCallback(false);
         }
-      }, 100);
-      
+      };
+
+      // Small delay to ensure URL cleanup
+      setTimeout(processCallback, 100);
       return;
     }
 
-    // Check if user is already logged in
-    const checkUser = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          navigate("/dashboard");
-        }
-      } catch (error) {
-        console.error('Error checking session:', error);
-      }
-    };
-    
+    // Check if user is already logged in (only if not processing callback or error)
     if (!error && !fragment) {
-      checkUser();
+      const checkExistingSession = async () => {
+        try {
+          console.log('🔍 Checking for existing authenticated session...');
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user) {
+            console.log('✅ User already authenticated:', session.user.email);
+            console.log('🔄 Redirecting to dashboard...');
+            navigate("/dashboard");
+          } else {
+            console.log('❌ No existing session found');
+          }
+        } catch (error) {
+          console.error('⚠️ Error checking existing session:', error);
+        }
+      };
+      
+      checkExistingSession();
     }
   }, [navigate, searchParams, toast]);
 
   const handleDiscordLogin = async () => {
     try {
       setLoading(true);
+      console.log('🚀 Starting Discord OAuth flow...');
       
       // Clear any existing auth state first
       try {
+        console.log('🧹 Clearing existing auth state...');
         await supabase.auth.signOut();
+        
+        // Clear localStorage
+        Object.keys(localStorage).forEach((key) => {
+          if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+            localStorage.removeItem(key);
+          }
+        });
       } catch (err) {
-        // Continue even if signout fails
-        console.log('Previous signout attempt:', err);
+        console.log('⚠️ Error during pre-auth cleanup:', err);
+        // Continue even if cleanup fails
       }
 
-      console.log('Initiating Discord OAuth...');
+      console.log('🔗 Initiating Discord OAuth with redirect to:', `${window.location.origin}/auth`);
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'discord',
@@ -118,11 +151,13 @@ const Auth = () => {
       });
       
       if (error) {
-        console.error('OAuth initiation error:', error);
+        console.error('❌ OAuth initiation error:', error);
         throw error;
       }
+      
+      console.log('✅ OAuth initiation successful, redirecting to Discord...');
     } catch (error: any) {
-      console.error('Discord login error:', error);
+      console.error('💥 Discord login error:', error);
       
       let errorMessage = error.message || 'Failed to connect to Discord. Please try again.';
       
@@ -140,32 +175,23 @@ const Auth = () => {
     }
   };
 
-  const handleRetry = async () => {
-    setRetrying(true);
-    
-    // Wait a moment before retrying
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    try {
-      // Test connection to Supabase
-      await supabase.auth.getSession();
-      
-      toast({
-        title: "Connection Restored",
-        description: "You can now try logging in again.",
-      });
-    } catch (error) {
-      toast({
-        title: "Still Having Issues",
-        description: "Please check your internet connection and try refreshing the page.",
-        variant: "destructive",
-      });
-    } finally {
-      setRetrying(false);
-    }
-  };
-
   const hasError = searchParams.get('error');
+
+  if (processingCallback) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/20 flex items-center justify-center p-4">
+        <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-2xl">
+          <CardContent className="p-8">
+            <div className="text-center space-y-4">
+              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+              <h3 className="text-lg font-semibold">Completing sign in...</h3>
+              <p className="text-muted-foreground">Please wait while we finalize your authentication.</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/20 flex items-center justify-center p-4">
@@ -204,31 +230,17 @@ const Auth = () => {
               </Alert>
             )}
 
-            {/* Discord Login Button */}
             <Button 
               onClick={handleDiscordLogin}
-              disabled={loading || retrying}
+              disabled={loading || processingCallback}
               className="w-full gradient-primary text-white hover:opacity-90 transition-opacity"
               size="lg"
             >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
               </svg>
-              {loading ? "Connecting..." : retrying ? "Checking connection..." : "Continue with Discord"}
+              {loading ? "Connecting..." : "Continue with Discord"}
             </Button>
-
-            {hasError && (
-              <Button 
-                onClick={handleRetry}
-                disabled={retrying || loading}
-                variant="outline"
-                className="w-full"
-                size="lg"
-              >
-                <RefreshCw className={`w-4 h-4 mr-2 ${retrying ? 'animate-spin' : ''}`} />
-                {retrying ? "Checking..." : "Try Again"}
-              </Button>
-            )}
 
             <div className="text-center text-sm text-muted-foreground">
               By continuing, you agree to our terms of service and privacy policy.
