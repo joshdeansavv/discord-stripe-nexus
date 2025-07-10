@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { ConnectionStatus } from "@/components/ConnectionStatus";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/dashboard/Dashboard";
@@ -16,7 +17,24 @@ import Billing from "./pages/dashboard/Billing";
 import Profile from "./pages/dashboard/Profile";
 import Settings from "./pages/dashboard/Settings";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error) => {
+        // Don't retry network errors more than once
+        if (error instanceof Error && (
+          error.message.includes('fetch') || 
+          error.message.includes('network') ||
+          error.message.includes('Failed to fetch')
+        )) {
+          return failureCount < 1;
+        }
+        return failureCount < 3;
+      },
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -24,6 +42,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <ConnectionStatus />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
