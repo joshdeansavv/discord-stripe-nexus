@@ -4,10 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Server, Users, Activity, Trash2, ExternalLink, Bot } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Plus, Server, Users, Activity, Trash2, ExternalLink, Bot, Shield, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useAuthSecurity } from '@/hooks/useAuthSecurity';
 
 interface ServerData {
   id: string;
@@ -28,20 +30,45 @@ const Servers = () => {
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { securityCheck, refreshSession } = useAuthSecurity();
 
   const fetchServers = async () => {
+    if (!securityCheck.hasValidSession) {
+      toast({
+        title: 'Authentication Required',
+        description: 'Please refresh your session to view servers.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
+      console.log('Fetching servers for user:', user?.id);
       const { data, error } = await supabase
         .from('servers')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Server fetch error:', error);
+        if (error.code === 'PGRST301' || error.message.includes('row-level security')) {
+          toast({
+            title: 'Access Denied',
+            description: 'Unable to access servers. Please refresh your session.',
+            variant: 'destructive',
+          });
+          return;
+        }
+        throw error;
+      }
+
+      console.log('Servers fetched:', data?.length || 0);
       setServers(data || []);
     } catch (error: any) {
+      console.error('Fetch servers error:', error);
       toast({
         title: 'Error',
-        description: error.message,
+        description: error.message || 'Failed to fetch servers',
         variant: 'destructive',
       });
     } finally {
@@ -50,17 +77,27 @@ const Servers = () => {
   };
 
   useEffect(() => {
-    if (user) {
+    if (user && securityCheck.hasValidSession) {
       fetchServers();
     }
-  }, [user]);
+  }, [user, securityCheck.hasValidSession]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!serverName.trim()) return;
 
+    if (!securityCheck.hasValidSession) {
+      toast({
+        title: 'Session Expired',
+        description: 'Please refresh your session to continue.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setSubmitting(true);
     try {
+      console.log('Creating server:', { name: serverName, owner: user?.id });
       const { error } = await supabase
         .from('servers')
         .insert({
@@ -69,7 +106,18 @@ const Servers = () => {
           owner: user?.id,
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Server creation error:', error);
+        if (error.code === 'PGRST301' || error.message.includes('row-level security')) {
+          toast({
+            title: 'Access Denied',
+            description: 'Unable to create server. Please refresh your session.',
+            variant: 'destructive',
+          });
+          return;
+        }
+        throw error;
+      }
 
       toast({
         title: 'Success',
@@ -81,9 +129,10 @@ const Servers = () => {
       setShowForm(false);
       fetchServers();
     } catch (error: any) {
+      console.error('Create server error:', error);
       toast({
         title: 'Error',
-        description: error.message,
+        description: error.message || 'Failed to create server',
         variant: 'destructive',
       });
     } finally {
@@ -92,13 +141,33 @@ const Servers = () => {
   };
 
   const deleteServer = async (id: string) => {
+    if (!securityCheck.hasValidSession) {
+      toast({
+        title: 'Session Expired',
+        description: 'Please refresh your session to continue.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('servers')
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Server deletion error:', error);
+        if (error.code === 'PGRST301' || error.message.includes('row-level security')) {
+          toast({
+            title: 'Access Denied',
+            description: 'Unable to delete server. Please refresh your session.',
+            variant: 'destructive',
+          });
+          return;
+        }
+        throw error;
+      }
 
       toast({
         title: 'Success',
@@ -107,9 +176,10 @@ const Servers = () => {
 
       fetchServers();
     } catch (error: any) {
+      console.error('Delete server error:', error);
       toast({
         title: 'Error',
-        description: error.message,
+        description: error.message || 'Failed to delete server',
         variant: 'destructive',
       });
     }
@@ -150,6 +220,24 @@ const Servers = () => {
 
   return (
     <div className="space-y-6 p-6">
+      {/* Security Status Alert */}
+      {securityCheck.securityLevel !== 'high' && (
+        <Alert variant={securityCheck.securityLevel === 'low' ? 'destructive' : 'default'}>
+          <Shield className="h-4 w-4" />
+          <AlertDescription className="flex items-center justify-between">
+            <span>
+              {securityCheck.securityLevel === 'low' 
+                ? 'Your session is expiring soon. Some features may be limited.'
+                : 'Your session will expire soon. Consider refreshing for continued access.'
+              }
+            </span>
+            <Button variant="outline" size="sm" onClick={refreshSession}>
+              Refresh Session
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Discord Servers</h1>
@@ -157,7 +245,11 @@ const Servers = () => {
             Manage Discord servers where your bot is active or can be added
           </p>
         </div>
-        <Button onClick={() => setShowForm(true)} className="gap-2">
+        <Button 
+          onClick={() => setShowForm(true)} 
+          className="gap-2"
+          disabled={!securityCheck.hasValidSession}
+        >
           <Plus className="w-4 h-4" />
           Register Server
         </Button>
@@ -203,7 +295,7 @@ const Servers = () => {
                 </p>
               </div>
               <div className="flex gap-2">
-                <Button type="submit" disabled={submitting}>
+                <Button type="submit" disabled={submitting || !securityCheck.hasValidSession}>
                   {submitting ? 'Registering...' : 'Register Server'}
                 </Button>
                 <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
@@ -231,6 +323,7 @@ const Servers = () => {
                     size="sm"
                     onClick={() => deleteServer(server.id)}
                     className="text-destructive hover:text-destructive"
+                    disabled={!securityCheck.hasValidSession}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -297,7 +390,11 @@ const Servers = () => {
             <p className="text-muted-foreground mb-4">
               Register your first Discord server to start tracking bot usage and manage access
             </p>
-            <Button onClick={() => setShowForm(true)} className="gap-2">
+            <Button 
+              onClick={() => setShowForm(true)} 
+              className="gap-2"
+              disabled={!securityCheck.hasValidSession}
+            >
               <Plus className="w-4 h-4" />
               Register Your First Server
             </Button>
