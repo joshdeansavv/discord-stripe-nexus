@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 const Settings = () => {
@@ -26,6 +27,7 @@ const Settings = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { signOut } = useAuth();
 
   const handleSaveSettings = async () => {
     try {
@@ -48,11 +50,7 @@ const Settings = () => {
 
   const handleSignOut = async () => {
     try {
-      await supabase.auth.signOut();
-      toast({
-        title: "Signed out",
-        description: "You've been successfully signed out.",
-      });
+      await signOut();
       navigate("/auth");
     } catch (error: any) {
       toast({

@@ -1,25 +1,9 @@
-
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-
-interface AuthContextType {
-  user: User | null;
-  session: Session | null;
-  loading: boolean;
-  signOut: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+import { AuthContext } from '@/contexts/AuthContext';
+import { cleanupAuthTokens } from '@/utils/authHelpers';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -110,16 +94,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       console.log('🚪 Signing out...');
       
       // Clean up auth tokens first
-      try {
-        Object.keys(localStorage).forEach((key) => {
-          if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
-            localStorage.removeItem(key);
-          }
-        });
-        console.log('🧹 Local auth tokens cleared');
-      } catch (error) {
-        console.log('⚠️ Error cleaning localStorage during signout:', error);
-      }
+      cleanupAuthTokens();
       
       // Clear state immediately
       setSession(null);
