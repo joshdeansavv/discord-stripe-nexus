@@ -78,8 +78,8 @@ const Auth = () => {
         console.log('⚠️ No existing session to clean up');
       }
 
-      // Use the current page URL as redirect to ensure we stay on /auth
-      const redirectUrl = window.location.href;
+      // Use the current page URL as redirect to ensure we stay on /auth  
+      const redirectUrl = `${window.location.origin}/auth`;
       console.log('🔗 Initiating Discord OAuth', {
         redirectTo: redirectUrl,
         currentUrl: window.location.href
