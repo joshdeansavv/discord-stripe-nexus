@@ -19,56 +19,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    debugAuth.log('🔐 AuthProvider: Initializing auth state');
+    console.log('🔐 AuthProvider: Initializing auth state');
 
     let mounted = true;
 
-    // Get initial session first
-    const getInitialSession = async () => {
-      try {
-        debugAuth.log('🔍 Checking for existing session...');
-        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          debugAuth.error('❌ Error getting initial session', error);
-          throw error;
-        }
-
-        if (mounted) {
-          debugAuth.log('📱 Initial session check', initialSession ? {
-            userId: initialSession.user.id,
-            email: initialSession.user.email,
-            provider: initialSession.user.app_metadata?.provider,
-            expiresAt: new Date(initialSession.expires_at! * 1000).toISOString()
-          } : 'No existing session found');
-
-          setSession(initialSession);
-          setUser(initialSession?.user ?? null);
-          setLoading(false);
-        }
-      } catch (error) {
-        debugAuth.error('💥 Critical error getting initial session', error);
-        if (mounted) {
-          // Clean up potentially corrupted auth state
-          cleanupAuthTokens();
-          setSession(null);
-          setUser(null);
-          setLoading(false);
-        }
-      }
-    };
-
-    // Set up auth state change listener
+    // Set up auth state change listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
         if (!mounted) return;
 
-        debugAuth.log('🔄 Auth state change detected', {
+        console.log('🔄 Auth state change detected', {
           event,
           hasSession: !!newSession,
           userId: newSession?.user?.id,
           email: newSession?.user?.email,
-          provider: newSession?.user?.app_metadata?.provider
+          provider: newSession?.user?.app_metadata?.provider,
+          url: window.location.href
         });
         
         // Update state immediately
@@ -78,7 +44,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         // Handle auth events
         if (event === 'SIGNED_IN' && newSession?.user) {
-          debugAuth.success('✅ User signed in successfully', {
+          console.log('✅ User signed in successfully', {
             email: newSession.user.email,
             provider: newSession.user.app_metadata?.provider,
             userId: newSession.user.id
@@ -91,28 +57,64 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           
           // Redirect to dashboard after successful sign in
           setTimeout(() => {
-            if (window.location.pathname === '/auth') {
+            if (window.location.pathname === '/auth' || window.location.pathname === '/') {
+              console.log('🔀 Redirecting to dashboard');
               window.location.href = '/dashboard';
             }
           }, 100);
           
         } else if (event === 'SIGNED_OUT') {
-          debugAuth.log('👋 User signed out');
+          console.log('👋 User signed out');
           secureLog('info', 'User signed out');
           cleanupAuthTokens();
         } else if (event === 'TOKEN_REFRESHED') {
-          debugAuth.log('🔄 Token refreshed successfully');
+          console.log('🔄 Token refreshed successfully');
           secureLog('info', 'Auth token refreshed');
         }
       }
     );
+
+    // THEN get initial session
+    const getInitialSession = async () => {
+      try {
+        console.log('🔍 Checking for existing session...');
+        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('❌ Error getting initial session', error);
+          throw error;
+        }
+
+        if (mounted) {
+          console.log('📱 Initial session check', initialSession ? {
+            userId: initialSession.user.id,
+            email: initialSession.user.email,
+            provider: initialSession.user.app_metadata?.provider,
+            expiresAt: new Date(initialSession.expires_at! * 1000).toISOString()
+          } : 'No existing session found');
+
+          setSession(initialSession);
+          setUser(initialSession?.user ?? null);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('💥 Critical error getting initial session', error);
+        if (mounted) {
+          // Clean up potentially corrupted auth state
+          cleanupAuthTokens();
+          setSession(null);
+          setUser(null);
+          setLoading(false);
+        }
+      }
+    };
 
     // Initialize session check
     getInitialSession();
 
     return () => {
       mounted = false;
-      debugAuth.log('🧹 Cleaning up auth subscription');
+      console.log('🧹 Cleaning up auth subscription');
       subscription.unsubscribe();
     };
   }, []);

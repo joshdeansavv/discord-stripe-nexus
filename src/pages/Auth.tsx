@@ -65,7 +65,7 @@ const Auth = () => {
   const handleDiscordLogin = async () => {
     try {
       setLoading(true);
-      debugAuth.log('🚀 Starting Discord OAuth flow...');
+      console.log('🚀 Starting Discord OAuth flow...');
       
       // Clean up any existing corrupted auth state first
       cleanupAuthTokens();
@@ -73,33 +73,46 @@ const Auth = () => {
       // Sign out any existing session to ensure clean state
       try {
         await supabase.auth.signOut({ scope: 'global' });
-        debugAuth.log('🧹 Cleaned up existing session');
+        console.log('🧹 Cleaned up existing session');
       } catch (err) {
-        debugAuth.log('⚠️ No existing session to clean up');
+        console.log('⚠️ No existing session to clean up');
       }
 
-      const redirectUrl = `${window.location.origin}/auth`;
-      debugAuth.log('🔗 Initiating Discord OAuth', {
+      // Use the current page URL as redirect to ensure we stay on /auth
+      const redirectUrl = window.location.href;
+      console.log('🔗 Initiating Discord OAuth', {
         redirectTo: redirectUrl,
         currentUrl: window.location.href
       });
       
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'discord',
         options: {
-          redirectTo: redirectUrl,
-          skipBrowserRedirect: false
+          redirectTo: redirectUrl
         }
       });
       
       if (error) {
-        debugAuth.error('❌ OAuth initiation failed', error);
+        console.error('❌ OAuth initiation failed', error);
         throw error;
       }
       
-      debugAuth.success('✅ OAuth initiated, redirecting to Discord...');
+      console.log('✅ OAuth initiated', data);
+      // The browser should redirect automatically, but if it doesn't in 3 seconds, show error
+      setTimeout(() => {
+        if (loading) {
+          console.error('⏰ OAuth redirect timeout');
+          setLoading(false);
+          toast({
+            title: "Login Timeout",
+            description: "Discord login is taking longer than expected. Please try again.",
+            variant: "destructive",
+          });
+        }
+      }, 3000);
+      
     } catch (error: any) {
-      debugAuth.error('💥 Discord login error', error);
+      console.error('💥 Discord login error', error);
       
       let errorMessage = 'Failed to connect to Discord. Please try again.';
       
@@ -107,6 +120,8 @@ const Auth = () => {
         errorMessage = 'Network connection issue. Please check your internet and try again.';
       } else if (error.message?.includes('unauthorized')) {
         errorMessage = 'Discord authorization configuration issue. Please contact support.';
+      } else if (error.message?.includes('Invalid login credentials')) {
+        errorMessage = 'Discord authentication failed. Please try again.';
       }
       
       toast({
