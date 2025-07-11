@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     // Set up auth state change listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, newSession) => {
+      (event, newSession) => {
         if (!mounted) return;
 
         console.log('🔄 Auth state change detected', {
@@ -37,12 +37,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           url: window.location.href
         });
         
-        // Update state immediately
+        // Update state immediately (synchronously)
         setSession(newSession);
         setUser(newSession?.user ?? null);
         setLoading(false);
 
-        // Handle auth events
+        // Handle auth events (use setTimeout to prevent deadlocks)
         if (event === 'SIGNED_IN' && newSession?.user) {
           console.log('✅ User signed in successfully', {
             email: newSession.user.email,
@@ -55,9 +55,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             provider: newSession.user.app_metadata?.provider
           });
           
-          // Redirect to dashboard after successful sign in
+          // Redirect to dashboard after successful sign in (deferred)
           setTimeout(() => {
-            if (window.location.pathname === '/auth' || window.location.pathname === '/') {
+            if (window.location.pathname === '/auth') {
               console.log('🔀 Redirecting to dashboard');
               window.location.href = '/dashboard';
             }

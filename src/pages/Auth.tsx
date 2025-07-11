@@ -20,10 +20,9 @@ const Auth = () => {
   useEffect(() => {
     debugAuth.log('🔧 Auth page mounted');
     
-    // Check for OAuth errors or success in URL parameters
+    // Check for OAuth errors in URL parameters immediately
     const error = searchParams.get('error');
     const errorDescription = searchParams.get('error_description');
-    const accessToken = searchParams.get('access_token');
     
     if (error) {
       debugAuth.error('❌ OAuth error detected', { error, errorDescription });
@@ -48,15 +47,11 @@ const Auth = () => {
       return;
     }
 
-    // If we have an access token in URL, let Supabase handle the session
-    if (accessToken) {
-      debugAuth.log('🔑 OAuth callback detected, letting Supabase handle session');
-      // Don't redirect immediately, let the auth state change handler do it
-      return;
-    }
-
-    // Check if user is already logged in
-    if (!authLoading && user) {
+    // Let Supabase client handle OAuth callback automatically
+    // No need to check for access_token manually since detectSessionInUrl: true
+    
+    // Check if user is already logged in (but don't redirect if we're processing OAuth)
+    if (!authLoading && user && !searchParams.has('code') && !searchParams.has('access_token')) {
       debugAuth.success('✅ User already authenticated, redirecting to dashboard');
       navigate('/dashboard', { replace: true });
     }
@@ -85,10 +80,10 @@ const Auth = () => {
         currentUrl: window.location.href
       });
       
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'discord',
         options: {
-          redirectTo: redirectUrl
+          redirectTo: `${window.location.origin}/auth`
         }
       });
       
@@ -97,7 +92,7 @@ const Auth = () => {
         throw error;
       }
       
-      console.log('✅ OAuth initiated', data);
+      // OAuth redirect should happen immediately
       // The browser should redirect automatically, but if it doesn't in 3 seconds, show error
       setTimeout(() => {
         if (loading) {
