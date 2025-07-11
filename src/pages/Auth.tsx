@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, ArrowLeft, AlertCircle, RefreshCw } from "lucide-react";
+import { Shield, ArrowLeft, AlertCircle } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -12,7 +12,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
-  const [processingCallback, setProcessingCallback] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -23,10 +22,7 @@ const Auth = () => {
 
   useEffect(() => {
     debugAuth.log('🔧 Auth page mounted');
-    debugAuth.log('📍 Current URL', window.location.href);
-    debugAuth.log('🔗 Search params', Object.fromEntries(searchParams.entries()));
-    debugAuth.log('🔗 Hash fragment', window.location.hash);
-
+    
     // Check for OAuth errors in URL parameters
     const error = searchParams.get('error');
     const errorDescription = searchParams.get('error_description');
@@ -51,41 +47,12 @@ const Auth = () => {
       return;
     }
 
-    // Check for OAuth callback tokens in URL fragment
-    const fragment = window.location.hash;
-    if (fragment && (fragment.includes('access_token') || fragment.includes('refresh_token'))) {
-      debugAuth.log('🔄 OAuth callback detected, processing tokens...');
-      setProcessingCallback(true);
-      
-      // Clean up the URL fragment immediately to prevent reprocessing
-      window.history.replaceState({}, document.title, '/auth');
-      
-      // Let the auth state listener handle the rest - no manual redirect needed
-      setProcessingCallback(false);
-      return;
+    // Check if user is already logged in
+    if (!authLoading && user) {
+      debugAuth.success('✅ User already authenticated', user.email);
+      navigate('/dashboard', { replace: true });
     }
-
-    // Check if user is already logged in (only if not processing callback or error)
-    if (!error && !fragment) {
-      const checkExistingSession = async () => {
-        try {
-          debugAuth.log('🔍 Checking for existing authenticated session...');
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session?.user) {
-            debugAuth.success('✅ User already authenticated', session.user.email);
-            debugAuth.log('🔄 Redirecting to dashboard...');
-            window.location.href = '/dashboard';
-          } else {
-            debugAuth.log('❌ No existing session found');
-          }
-        } catch (error) {
-          debugAuth.error('⚠️ Error checking existing session', error);
-        }
-      };
-      
-      checkExistingSession();
-    }
-  }, [navigate, searchParams, toast]);
+  }, [navigate, searchParams, toast, user, authLoading]);
 
   const handleDiscordLogin = async () => {
     try {
@@ -96,28 +63,20 @@ const Auth = () => {
       try {
         debugAuth.log('🧹 Clearing existing auth state...');
         await supabase.auth.signOut();
-        
-        // Clear localStorage
-        Object.keys(localStorage).forEach((key) => {
-          if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
-            debugAuth.log('Removing localStorage key', key);
-            localStorage.removeItem(key);
-          }
-        });
       } catch (err) {
-        debugAuth.log('⚠️ Error during pre-auth cleanup', err);
-        // Continue even if cleanup fails
+        debugAuth.log('⚠️ Error during pre-auth cleanup (continuing)', err);
       }
 
+      const redirectUrl = `${window.location.origin}/auth`;
       debugAuth.log('🔗 Initiating Discord OAuth', {
-        redirectTo: `${window.location.origin}/auth`,
+        redirectTo: redirectUrl,
         currentUrl: window.location.href
       });
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'discord',
         options: {
-          redirectTo: `${window.location.origin}/auth`,
+          redirectTo: redirectUrl,
           skipBrowserRedirect: false
         }
       });
@@ -128,7 +87,6 @@ const Auth = () => {
       }
       
       debugAuth.success('✅ OAuth initiation successful, redirecting to Discord...');
-      // Browser will redirect to Discord, no need for additional logic
     } catch (error: any) {
       debugAuth.error('💥 Discord login error', error);
       
@@ -143,22 +101,22 @@ const Auth = () => {
         description: errorMessage,
         variant: "destructive",
       });
-    } finally {
       setLoading(false);
     }
   };
 
   const hasError = searchParams.get('error');
 
-  if (processingCallback) {
+  // Show loading state while checking auth
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/20 flex items-center justify-center p-4">
         <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-2xl">
           <CardContent className="p-8">
             <div className="text-center space-y-4">
               <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-              <h3 className="text-lg font-semibold">Completing sign in...</h3>
-              <p className="text-muted-foreground">Please wait while we finalize your authentication.</p>
+              <h3 className="text-lg font-semibold">Loading...</h3>
+              <p className="text-muted-foreground">Checking authentication status.</p>
             </div>
           </CardContent>
         </Card>
@@ -205,7 +163,7 @@ const Auth = () => {
 
             <Button 
               onClick={handleDiscordLogin}
-              disabled={loading || processingCallback}
+              disabled={loading}
               className="w-full gradient-primary text-white hover:opacity-90 transition-opacity"
               size="lg"
             >

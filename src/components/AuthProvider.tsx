@@ -21,33 +21,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     debugAuth.log('🔐 AuthProvider: Setting up auth state listener');
 
-    // Get initial session
-    const getInitialSession = async () => {
-      try {
-        debugAuth.log('Checking for initial session...');
-        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          debugAuth.error('Error getting initial session', error);
-        } else {
-          debugAuth.log('📱 Initial session check', initialSession ? {
-            userId: initialSession.user.id,
-            email: initialSession.user.email,
-            provider: initialSession.user.app_metadata?.provider,
-            discordId: initialSession.user.user_metadata?.provider_id
-          } : 'No session found');
-          
-          setSession(initialSession);
-          setUser(initialSession?.user ?? null);
-        }
-      } catch (error) {
-        debugAuth.error('Error in getInitialSession', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Set up auth state change listener
+    // Set up auth state change listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
         debugAuth.log('🔄 Auth state change', {
@@ -59,6 +33,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           discordMetadata: newSession?.user?.user_metadata
         });
         
+        // Update state immediately
         setSession(newSession);
         setUser(newSession?.user ?? null);
         setLoading(false);
@@ -78,7 +53,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             return;
           }
           
-          debugAuth.success('✅ User signed in', {
+          debugAuth.success('✅ User signed in successfully', {
             email: newSession.user.email,
             provider: newSession.user.app_metadata?.provider,
             discordId: newSession.user.user_metadata?.provider_id,
@@ -90,6 +65,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             provider: newSession.user.app_metadata?.provider
           });
           
+          // Redirect to dashboard after successful sign in
+          setTimeout(() => {
+            window.location.href = '/dashboard';
+          }, 100);
+          
         } else if (event === 'SIGNED_OUT') {
           debugAuth.log('👋 User signed out');
           secureLog('info', 'User signed out');
@@ -99,6 +79,36 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
       }
     );
+
+    // THEN get initial session
+    const getInitialSession = async () => {
+      try {
+        debugAuth.log('Checking for initial session...');
+        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          debugAuth.error('Error getting initial session', error);
+          setLoading(false);
+        } else {
+          debugAuth.log('📱 Initial session check', initialSession ? {
+            userId: initialSession.user.id,
+            email: initialSession.user.email,
+            provider: initialSession.user.app_metadata?.provider,
+            discordId: initialSession.user.user_metadata?.provider_id
+          } : 'No session found');
+          
+          // Only set state if we don't have a session yet (avoid race condition)
+          if (!session) {
+            setSession(initialSession);
+            setUser(initialSession?.user ?? null);
+          }
+          setLoading(false);
+        }
+      } catch (error) {
+        debugAuth.error('Error in getInitialSession', error);
+        setLoading(false);
+      }
+    };
 
     getInitialSession();
 
