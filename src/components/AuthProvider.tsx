@@ -3,7 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase, debugAuth } from '@/integrations/supabase/client';
 import { useProfileSync } from '@/hooks/useProfileSync';
-import { validateAuthState, secureSignOut } from '@/utils/authHelpers';
+import { cleanupAuthTokens } from '@/utils/authHelpers';
 import { secureLog, sanitizeError } from '@/utils/security';
 
 // Import AuthContextType and AuthContext from the separate context file
@@ -19,18 +19,56 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    debugAuth.log('🔐 AuthProvider: Setting up auth state listener');
+    debugAuth.log('🔐 AuthProvider: Initializing auth state');
 
-    // Set up auth state change listener FIRST
+    let mounted = true;
+
+    // Get initial session first
+    const getInitialSession = async () => {
+      try {
+        debugAuth.log('🔍 Checking for existing session...');
+        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          debugAuth.error('❌ Error getting initial session', error);
+          throw error;
+        }
+
+        if (mounted) {
+          debugAuth.log('📱 Initial session check', initialSession ? {
+            userId: initialSession.user.id,
+            email: initialSession.user.email,
+            provider: initialSession.user.app_metadata?.provider,
+            expiresAt: new Date(initialSession.expires_at! * 1000).toISOString()
+          } : 'No existing session found');
+
+          setSession(initialSession);
+          setUser(initialSession?.user ?? null);
+          setLoading(false);
+        }
+      } catch (error) {
+        debugAuth.error('💥 Critical error getting initial session', error);
+        if (mounted) {
+          // Clean up potentially corrupted auth state
+          cleanupAuthTokens();
+          setSession(null);
+          setUser(null);
+          setLoading(false);
+        }
+      }
+    };
+
+    // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
-        debugAuth.log('🔄 Auth state change', {
+        if (!mounted) return;
+
+        debugAuth.log('🔄 Auth state change detected', {
           event,
           hasSession: !!newSession,
           userId: newSession?.user?.id,
           email: newSession?.user?.email,
-          provider: newSession?.user?.app_metadata?.provider,
-          discordMetadata: newSession?.user?.user_metadata
+          provider: newSession?.user?.app_metadata?.provider
         });
         
         // Update state immediately
@@ -38,26 +76,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setUser(newSession?.user ?? null);
         setLoading(false);
 
-        // Handle different auth events with security validation
+        // Handle auth events
         if (event === 'SIGNED_IN' && newSession?.user) {
-          // Validate auth state security
-          const authValidation = validateAuthState(newSession, newSession.user);
-          
-          if (!authValidation.isValid) {
-            secureLog('warn', 'Auth state validation failed on sign in', {
-              issues: authValidation.issues,
-              userId: newSession.user.id
-            });
-            // Force sign out if validation fails
-            setTimeout(() => secureSignOut(supabase), 0);
-            return;
-          }
-          
           debugAuth.success('✅ User signed in successfully', {
             email: newSession.user.email,
             provider: newSession.user.app_metadata?.provider,
-            discordId: newSession.user.user_metadata?.provider_id,
-            discordUsername: newSession.user.user_metadata?.user_name
+            userId: newSession.user.id
           });
           
           secureLog('info', 'User authenticated successfully', {
@@ -67,71 +91,63 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           
           // Redirect to dashboard after successful sign in
           setTimeout(() => {
-            window.location.href = '/dashboard';
+            if (window.location.pathname === '/auth') {
+              window.location.href = '/dashboard';
+            }
           }, 100);
           
         } else if (event === 'SIGNED_OUT') {
           debugAuth.log('👋 User signed out');
           secureLog('info', 'User signed out');
+          cleanupAuthTokens();
         } else if (event === 'TOKEN_REFRESHED') {
-          debugAuth.log('🔄 Token refreshed');
+          debugAuth.log('🔄 Token refreshed successfully');
           secureLog('info', 'Auth token refreshed');
         }
       }
     );
 
-    // THEN get initial session
-    const getInitialSession = async () => {
-      try {
-        debugAuth.log('Checking for initial session...');
-        const { data: { session: initialSession }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          debugAuth.error('Error getting initial session', error);
-          setLoading(false);
-        } else {
-          debugAuth.log('📱 Initial session check', initialSession ? {
-            userId: initialSession.user.id,
-            email: initialSession.user.email,
-            provider: initialSession.user.app_metadata?.provider,
-            discordId: initialSession.user.user_metadata?.provider_id
-          } : 'No session found');
-          
-          // Only set state if we don't have a session yet (avoid race condition)
-          if (!session) {
-            setSession(initialSession);
-            setUser(initialSession?.user ?? null);
-          }
-          setLoading(false);
-        }
-      } catch (error) {
-        debugAuth.error('Error in getInitialSession', error);
-        setLoading(false);
-      }
-    };
-
+    // Initialize session check
     getInitialSession();
 
     return () => {
+      mounted = false;
       debugAuth.log('🧹 Cleaning up auth subscription');
       subscription.unsubscribe();
     };
   }, []);
 
   const signOut = async () => {
-    debugAuth.log('👋 Signing out user');
+    debugAuth.log('👋 Initiating sign out');
     secureLog('info', 'User initiated sign out', { userId: user?.id });
     
-    const result = await secureSignOut(supabase);
-    
-    if (!result.error) {
-      setUser(null);
-      setSession(null);
-      debugAuth.success('Sign out successful');
-    } else {
-      debugAuth.error('Sign out error', result.error);
+    try {
+      // Clean up auth state first
+      cleanupAuthTokens();
+      
+      // Attempt global sign out
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
+      
+      if (!error) {
+        debugAuth.success('✅ Sign out successful');
+        // Force page reload for clean state
+        setTimeout(() => {
+          window.location.href = '/auth';
+        }, 100);
+      } else {
+        debugAuth.error('❌ Sign out error', error);
+      }
+      
+      return { error };
+    } catch (error) {
+      debugAuth.error('💥 Critical sign out error', error);
+      // Force cleanup and redirect even on error
+      cleanupAuthTokens();
+      setTimeout(() => {
+        window.location.href = '/auth';
+      }, 100);
+      return { error: error as AuthError };
     }
-    return result;
   };
 
   const value = {
@@ -157,7 +173,7 @@ const AuthSyncWrapper = ({ children }: { children: React.ReactNode }) => {
   // Log sync status for debugging
   useEffect(() => {
     if (syncStatus.userId) {
-      debugAuth.log('Sync status update', syncStatus);
+      debugAuth.log('🔄 Profile sync status update', syncStatus);
     }
   }, [syncStatus]);
 
